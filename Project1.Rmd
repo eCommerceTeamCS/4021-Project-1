@@ -13,16 +13,16 @@ output: html_notebook
 Based on the analysis conducted in part 1b, I have been able to form some well-informed hypotheses from the visualizations. They are as follows, listed as null and alternative hypotheses and followed by how I arrived at them:
 
 ..As for accident severity in regards to **Accident Damage (ACCDMG)**:
-*1) H0: ______*
-*Ha: _______*
+*1) H0: Higher train speeds among freight trains have no effect on accident damage*
+*Ha: Higher train speeds among freight trains result in higher accident damage*
 
-*2) H0: ______*
-*Ha _______*
+*2) H0: Accidents caused by Human Factors have no effect on accident damage*
+*Ha Accidents caused by Human Factors have an effect on accident damage*
 
 ..As for accident severity in regards to **Casualties**: 
 
 *1) H0: Derailment caused accidents do not increase the number of casualties*  
 *Ha: Derailment caused accidents do increase the number of casualties* 
 
-*2) H0: __________*
-*Ha: _________*
+*2) H0: Highway-rail crossing accidents are more severe than other types of accidents*
+*Ha: Highway-rail crossing accidents are not more severe than other types of accidents*
