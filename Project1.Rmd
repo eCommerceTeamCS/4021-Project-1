@@ -1,6 +1,6 @@
 ---
 title: "Project 1"
-author: "Shayne Cassidy"
+author: "Shayne Cassidy, Sarah Winston Nathan, Sarah Nelson"
 output: html_notebook
 ---
 
