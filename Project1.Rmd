@@ -27,3 +27,57 @@ Based on the analysis conducted in part 1b, I have been able to form some well-i
 
 *2) H0: Highway-rail crossing accidents are more severe than other types of accidents*
 *Ha: Highway-rail crossing accidents are not more severe than other types of accidents*
+
+## Part 2: ACCDMG Analysis
+
+*Hypothesis 1*
+
+Fill in here steps a-e
+(a) The feature and model selection techniques you used to find appropriate models for this problem;
+(b) Your treatment of ordinal and categorical variables (i.e., how were
+they coded);
+(c) How you assessed your models (e.g., adjusted R2, AIC, etc.);
+(d) How you diagnosed problems with the models; and
+(e) How you adjusted the models based on these assessments.
+
+
+*Hypothesis 2*
+
+Fill in here steps a-e
+(a) The feature and model selection techniques you used to find appropriate models for this problem;
+(b) Your treatment of ordinal and categorical variables (i.e., how were
+they coded);
+(c) How you assessed your models (e.g., adjusted R2, AIC, etc.);
+(d) How you diagnosed problems with the models; and
+(e) How you adjusted the models based on these assessments.
+
+
+## Part 3: Casualties
+
+*Hypothesis 1*
+
+Fill in here steps a-e
+(a) The feature and model selection techniques you used to find appropriate models for this problem;
+(b) Your treatment of ordinal and categorical variables (i.e., how were
+they coded);
+(c) How you assessed your models (e.g., adjusted R2, AIC, etc.);
+(d) How you diagnosed problems with the models; and
+(e) How you adjusted the models based on these assessments.
+
+
+*Hypothesis 2* 
+
+Fill in here steps a-e
+(a) The feature and model selection techniques you used to find appropriate models for this problem;
+(b) Your treatment of ordinal and categorical variables (i.e., how were
+they coded);
+(c) How you assessed your models (e.g., adjusted R2, AIC, etc.);
+(d) How you diagnosed problems with the models; and
+(e) How you adjusted the models based on these assessments.
+
+
+## Part 4: Evidence and Recommendations to FRA
+
+### Part a)
+
+### Part b)
