@@ -1,5 +1,6 @@
 ---
 title: "Project 1"
+author: "Shayne Cassidy"
 output: html_notebook
 ---
 
