@@ -16,3 +16,8 @@ Based on the analysis conducted in part 1b, I have been able to form some well-i
 
 *1) H0: Derailment caused accidents do not increase the number of casualties*  
 *Ha: Derailment caused accidents do increase the number of casualties* 
+
+*2) H0: __________*
+*Ha: _________*
+
+..As for accident severity in regards to **Accident Damage (ACCDMG)**:
