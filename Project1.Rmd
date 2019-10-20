@@ -4,3 +4,8 @@ author: "Shayne Cassidy, Sarah Winston Nathan, Sarah Nelson"
 output: html_notebook
 ---
 
+# Project 1
+## Shayne Cassidy (sc5za) Sarah Winston Nathan (swn2bf) Sarah Nelson (skn5mq)
+### October 20th, 2019
+
+## Part 1: Generating Hypotheses
