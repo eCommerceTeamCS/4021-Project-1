@@ -1,6 +1,7 @@
 ---
 title: "Project 1"
-author: "Shayne Cassidy, Sarah Winston Nathan, Sarah Nelson"
+author: "Shayne Cassidy (sc5za) Sarah Winston Nathan (swn2bf) Sarah Nelson (skn5mq)"
+date: "10/20/2019"
 output: html_notebook
 ---
 
