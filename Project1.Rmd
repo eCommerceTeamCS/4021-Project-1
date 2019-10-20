@@ -5,10 +5,6 @@ date: "10/20/2019"
 output: html_notebook
 ---
 
-# Project 1
-## Shayne Cassidy (sc5za) Sarah Winston Nathan (swn2bf) Sarah Nelson (skn5mq)
-### October 20th, 2019
-
 ## Part 1: Generating Hypotheses
 
 Based on the analysis conducted in part 1b, I have been able to form some well-informed hypotheses from the visualizations. They are as follows, listed as null and alternative hypotheses and followed by how I arrived at them:
