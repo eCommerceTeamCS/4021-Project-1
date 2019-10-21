@@ -11,6 +11,8 @@ require("knitr")
 #sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
 traindir <- "/Users/shaynecassidy/Desktop/4021/Data/TrainData"
 sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
+#traindir <- "/Users/student/SYS4021/Data/Trains"
+#sourcedir <- "/Users/student/SYS4021/RCode"
 opts_knit$set(root.dir = sourcedir)
 opts_chunk$set(warning=FALSE)
 ```
