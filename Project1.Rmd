@@ -7,8 +7,10 @@ output: html_notebook
 
 ```{r setup, include=FALSE}
 require("knitr")
-traindir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/TrainData"
-sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
+#traindir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/TrainData"
+#sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
+traindir <- "/Users/shaynecassidy/Desktop/4021/Data/TrainData"
+sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
 opts_knit$set(root.dir = sourcedir)
 opts_chunk$set(warning=FALSE)
 ```
@@ -16,6 +18,7 @@ opts_chunk$set(warning=FALSE)
 Load data and combine data from 2001-2018 into totacts.
 ```{r}
 # Source AccidentInput
+setwd("/Users/shaynecassidy/Desktop/4021/RCode")
 source("AccidentInput.R")
 
 # list of data frames for each year of accident data
@@ -47,9 +50,9 @@ xdmgnd <- xdmg[!(duplicated(xdmg[, c("INCDTNO", "YEAR", "MONTH", "DAY", "TIMEHR"
 Build a data frame with only extreme accidents for Casualty
 ```{r}
 casbox <- boxplot(totacts$Casualty)
-cdmg <- totacts[totacts$Casualty > casbox$stats[5],]
+cas <- totacts[totacts$Casualty > casbox$stats[5],]
 # Remove duplicates from cdmg and call new data frame cdmgnd
-cdmgnd <- cdmg[!(duplicated(cdmg[, c("INCDTNO", "YEAR", "MONTH", "DAY", "TIMEHR",
+casnd <- cas[!(duplicated(cas[, c("INCDTNO", "YEAR", "MONTH", "DAY", "TIMEHR",
                                      "TIMEMIN")])),]
 ```
 
