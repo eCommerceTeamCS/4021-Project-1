@@ -129,6 +129,9 @@ they coded);
 
 *Hypothesis 1*
 
+*1) H0: Derailment caused accidents do not increase the number of casualties*  
+*Ha: Derailment caused accidents do increase the number of casualties* 
+
 Fill in here steps a-e
 (a) The feature and model selection techniques you used to find appropriate models for this problem;
 (b) Your treatment of ordinal and categorical variables (i.e., how were
