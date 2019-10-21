@@ -5,6 +5,54 @@ date: "10/20/2019"
 output: html_notebook
 ---
 
+```{r setup, include=FALSE}
+require("knitr")
+traindir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/TrainData"
+sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
+opts_knit$set(root.dir = sourcedir)
+opts_chunk$set(warning=FALSE)
+```
+
+Load data and combine data from 2001-2018 into totacts.
+```{r}
+# Source AccidentInput
+source("AccidentInput.R")
+
+# list of data frames for each year of accident data
+acts <- file.inputl(traindir)
+
+# data frame with all accidents from all years from 2001 - 2018
+
+# Get a common set the variables
+comvar <- intersect(colnames(acts[[1]]), colnames(acts[[8]]))
+
+# the combined data frame
+totacts <- combine.data(acts, comvar)
+```
+
+Create a new variable, Casualty, where Casualty = TOTINJ + TOTKLD
+```{r}
+totacts$Casualty <- totacts$TOTKLD + totacts$TOTINJ
+```
+
+Build a data frame with only extreme accidents for ACCDMG
+```{r}
+dmgbox <- boxplot(totacts$ACCDMG)
+xdmg <- totacts[totacts$ACCDMG > dmgbox$stats[5],]
+# Remove duplicates from xdmg and call new data frame xdmgnd
+xdmgnd <- xdmg[!(duplicated(xdmg[, c("INCDTNO", "YEAR", "MONTH", "DAY", "TIMEHR",
+                                     "TIMEMIN")])),]
+```
+
+Build a data frame with only extreme accidents for Casualty
+```{r}
+casbox <- boxplot(totacts$Casualty)
+cdmg <- totacts[totacts$Casualty > casbox$stats[5],]
+# Remove duplicates from cdmg and call new data frame cdmgnd
+cdmgnd <- cdmg[!(duplicated(cdmg[, c("INCDTNO", "YEAR", "MONTH", "DAY", "TIMEHR",
+                                     "TIMEMIN")])),]
+```
+
 ## Part 1: Generating Hypotheses
 
 Based on the analysis conducted in part 1b, I have been able to form some well-informed hypotheses from the visualizations. They are as follows, listed as null and alternative hypotheses and followed by how I arrived at them:
