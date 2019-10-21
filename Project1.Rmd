@@ -34,6 +34,30 @@ comvar <- intersect(colnames(acts[[1]]), colnames(acts[[8]]))
 # the combined data frame
 totacts <- combine.data(acts, comvar)
 ```
+Treatment of categorical variables
+
+These variables will need to be tested in our hypotheses. So, in order to appropriately test the hypotheses relating to these categorical variables, these categorical variables are recoded into two levels each. 
+```{r}
+# Create a freight train variable
+Freight <- rep(0, nrow(totacts))
+Freight[which(totacts$TYPEQ == 1)] <- 1
+Freight <- as.factor(Freight)
+
+# Create a human factors variable
+HF <- rep(0, nrow(totacts))
+HF[which(substr(totacts$CAUSE, 1, 1) == "H")] <- 1
+HF <- as.factor(HF)
+
+# Create a derailment variable
+Derail <- rep(0, nrow(totacts))
+Derail[which(totacts$TYPE == 1)] <- 1 
+Derail <- as.factor(Derail)
+
+# Create a highway-rail crossing variable
+HRX <- rep(0,nrow(totacts))
+HRX[which(totacts$TYPE == 7)] <- 1
+HRX <- as.factor(HRX)
+```
 
 Create a new variable, Casualty, where Casualty = TOTINJ + TOTKLD
 ```{r}
