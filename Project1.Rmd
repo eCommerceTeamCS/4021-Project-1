@@ -7,10 +7,10 @@ output: html_notebook
 
 ```{r setup, include=FALSE}
 require("knitr")
-#traindir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/TrainData"
-#sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
-traindir <- "/Users/shaynecassidy/Desktop/4021/Data/TrainData"
-sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
+traindir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/TrainData"
+sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
+#traindir <- "/Users/shaynecassidy/Desktop/4021/Data/TrainData"
+#sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
 #traindir <- "/Users/student/SYS4021/Data/Trains"
 #sourcedir <- "/Users/student/SYS4021/RCode"
 opts_knit$set(root.dir = sourcedir)
@@ -20,7 +20,7 @@ opts_chunk$set(warning=FALSE)
 Load data and combine data from 2001-2018 into totacts.
 ```{r}
 # Source AccidentInput
-setwd("/Users/shaynecassidy/Desktop/4021/RCode")
+#setwd("/Users/shaynecassidy/Desktop/4021/RCode")
 source("AccidentInput.R")
 
 # list of data frames for each year of accident data
@@ -34,30 +34,7 @@ comvar <- intersect(colnames(acts[[1]]), colnames(acts[[8]]))
 # the combined data frame
 totacts <- combine.data(acts, comvar)
 ```
-Treatment of categorical variables
 
-These variables will need to be tested in our hypotheses. So, in order to appropriately test the hypotheses relating to these categorical variables, these categorical variables are recoded into two levels each. 
-```{r}
-# Create a freight train variable
-Freight <- rep(0, nrow(totacts))
-Freight[which(totacts$TYPEQ == 1)] <- 1
-Freight <- as.factor(Freight)
-
-# Create a human factors variable
-HF <- rep(0, nrow(totacts))
-HF[which(substr(totacts$CAUSE, 1, 1) == "H")] <- 1
-HF <- as.factor(HF)
-
-# Create a derailment variable
-Derail <- rep(0, nrow(totacts))
-Derail[which(totacts$TYPE == 1)] <- 1 
-Derail <- as.factor(Derail)
-
-# Create a highway-rail crossing variable
-HRX <- rep(0,nrow(totacts))
-HRX[which(totacts$TYPE == 7)] <- 1
-HRX <- as.factor(HRX)
-```
 
 Create a new variable, Casualty, where Casualty = TOTINJ + TOTKLD
 ```{r}
@@ -81,6 +58,34 @@ cas <- totacts[totacts$Casualty > casbox$stats[5],]
 casnd <- cas[!(duplicated(cas[, c("INCDTNO", "YEAR", "MONTH", "DAY", "TIMEHR",
                                      "TIMEMIN")])),]
 ```
+
+Treatment of categorical variables
+
+These variables will need to be tested in our hypotheses. So, in order to appropriately test the hypotheses relating to these categorical variables, these categorical variables are recoded into two levels each. 
+```{r}
+# Create a freight train variable
+Freight <- rep(0, nrow(xdmgnd))
+Freight[which(xdmgnd$TYPEQ == 1)] <- 1
+Freight <- as.factor(Freight)
+
+# Create a human factors variable
+HF <- rep(0, nrow(xdmgnd))
+HF[which(substr(xdmgnd$CAUSE, 1, 1) == "H")] <- 1
+HF <- as.factor(HF)
+```
+
+```{r}
+# Create a derailment variable
+Derail <- rep(0, nrow(casnd))
+Derail[which(casnd$TYPE == 1)] <- 1 
+Derail <- as.factor(Derail)
+
+# Create a highway-rail crossing variable
+HRX <- rep(0,nrow(casnd))
+HRX[which(casnd$TYPE == 7)] <- 1
+HRX <- as.factor(HRX)
+```
+
 
 ## Part 1: Generating Hypotheses
 
@@ -134,6 +139,49 @@ they coded);
 
 Fill in here steps a-e
 (a) The feature and model selection techniques you used to find appropriate models for this problem;
+
+```{r}
+source("SPM_Panel.R")
+uva.pairs(casnd[,c("Casualty", "CARS", "TIMEHR", "TEMP", "TRKDNSTY", "TRNSPD", "TONS")])
+```
+Due to the low correlations between casualty and TIMEHR, TONS, and TRKDNSTY, we will not include these variables in our model. 
+
+```{r}
+casnd.lm1 <- lm(Casualty ~ Derail + HRX + TEMP + CARS + TRNSPD, data=casnd)
+summary(casnd.lm1)
+```
+
+
+#Plot diagnostic graphs individually
+```{r}
+plot(casnd.lm1,which=1) #Residual vs. Fitted
+```
+This plot violates the assumptions for the residual vs fitted diagnostic plot because there is not a mean of zero and there is not a constant variance. 
+
+```{r}
+plot(casnd.lm1,which=2) #QQ
+```
+This graph shows a violation of assumptions because the points clearly do not follow the line. This represents a failure of the Gaussian assumption for the error term. 
+
+```{r}
+plot(casnd.lm1,which=3) #Scale-Location
+```
+This graph shows a violation of assumptions because the points do not have a mean of zero and there is not a constant variance. 
+
+```{r}
+plot(casnd.lm1,labels.id = NULL, which=4) #Cook's distance
+```
+This shows a violation of assumptions because there are multiple incidents which have very large Cook's distances.
+
+```{r}
+plot(casnd.lm1,which=5) #Redisuals vs. Leverage
+```
+
+```{r}
+plot(casnd.lm1,which=6) #Cook's dist vs. Leverage
+```
+
+
 (b) Your treatment of ordinal and categorical variables (i.e., how were
 they coded);
 (c) How you assessed your models (e.g., adjusted R2, AIC, etc.);
