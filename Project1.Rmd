@@ -9,10 +9,10 @@ output: html_notebook
 require("knitr")
 #traindir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/TrainData"
 #sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
-traindir <- "/Users/shaynecassidy/Desktop/4021/Data/TrainData"
-sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
-#traindir <- "/Users/student/SYS4021/Data/Trains"
-#sourcedir <- "/Users/student/SYS4021/RCode"
+#traindir <- "/Users/shaynecassidy/Desktop/4021/Data/TrainData"
+#sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
+traindir <- "/Users/student/SYS4021/Data/Trains"
+sourcedir <- "/Users/student/SYS4021/RCode"
 opts_knit$set(root.dir = sourcedir)
 opts_chunk$set(warning=FALSE)
 ```
@@ -161,6 +161,18 @@ they coded);
 (d) How you diagnosed problems with the models; and
 (e) How you adjusted the models based on these assessments.
 
+```{r}
+source("SPM_Panel.R")
+uva.pairs(xdmgnd[,c("ACCDMG", "TRNSPD", "CARS", "TRKDNSTY", "TONS", "HEADEND1", "CDTRHR", "ENGRS")])
+```
+
+Based on the visualizations and correlation values from the scatter plot matices above, we have decided to include TRNSPD, TRKDNSTY, CARS, TONS, and HEADEND1 as quantitative variables in our model.
+
+To test our hypotheses, we will include the two treated categorical variables, Freight and HF (Human Factors), with the selected quantitative variables in our linear model.
+```{r}
+xdmgnd.lm1 <- lm(ACCDMG ~ Freight + HF  + CARS + TRNSPD + HEADEND1 + TONS, data=xdmgnd)
+summary(xdmgnd.lm1)
+```
 
 *Hypothesis 2*
 
