@@ -7,10 +7,10 @@ output: html_notebook
 
 ```{r setup, include=FALSE}
 require("knitr")
-traindir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/TrainData"
-sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
-#traindir <- "/Users/shaynecassidy/Desktop/4021/Data/TrainData"
-#sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
+#traindir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/TrainData"
+#sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
+traindir <- "/Users/shaynecassidy/Desktop/4021/Data/TrainData"
+sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
 #traindir <- "/Users/student/SYS4021/Data/Trains"
 #sourcedir <- "/Users/student/SYS4021/RCode"
 opts_knit$set(root.dir = sourcedir)
@@ -20,7 +20,7 @@ opts_chunk$set(warning=FALSE)
 Load data and combine data from 2001-2018 into totacts.
 ```{r}
 # Source AccidentInput
-#setwd("/Users/shaynecassidy/Desktop/4021/RCode")
+setwd("/Users/shaynecassidy/Desktop/4021/RCode")
 source("AccidentInput.R")
 
 # list of data frames for each year of accident data
@@ -54,7 +54,7 @@ Build a data frame with only extreme accidents for Casualty
 ```{r}
 casbox <- boxplot(totacts$Casualty)
 cas <- totacts[totacts$Casualty > casbox$stats[5],]
-# Remove duplicates from cdmg and call new data frame cdmgnd
+# Remove duplicates from cdmg and call new data frame casnd
 casnd <- cas[!(duplicated(cas[, c("INCDTNO", "YEAR", "MONTH", "DAY", "TIMEHR",
                                      "TIMEMIN")])),]
 ```
@@ -88,8 +88,43 @@ HRX <- as.factor(HRX)
 
 
 ## Part 1: Generating Hypotheses
+ACCDMG: We used the following visualizations, summary statistics, and external supporting evidence to arrive at our hypotheses for ACCDMG. 
+```{r}
+# Freight, Human Factors
+mean(xdmgnd$ACCDMG)
+max(xdmgnd$ACCDMG)
 
-Based on the analysis conducted in part 1b, I have been able to form some well-informed hypotheses from the visualizations. They are as follows, listed as null and alternative hypotheses and followed by how I arrived at them:
+xdmgnd$TYPEQ <- as.numeric(xdmgnd$TYPEQ)
+xdmgnd$TYPEQ <- factor(xdmgnd$TYPEQ, labels = c("Freight", "Passenger", "Commuter", "Work",  "Single", "CutofCars", "Yard", "Light", "Maint"))
+barplot(table(xdmgnd$TYPEQ))
+bwplot(as.factor(TYPEQ)~ACCDMG, data = xdmgnd, main = "Box Plots of Accident Damage", xlab = "Damage ($)", ylab = "Type Train")
+
+xdmgnd$Cause <- rep(NA, nrow(xdmgnd))
+xdmgnd$Cause[which(substr(xdmgnd$CAUSE, 1, 1) == "M")] <- "M" 
+xdmgnd$Cause[which(substr(xdmgnd$CAUSE, 1, 1) == "T")] <- "T"
+xdmgnd$Cause[which(substr(xdmgnd$CAUSE, 1, 1) == "S")] <- "S"
+xdmgnd$Cause[which(substr(xdmgnd$CAUSE, 1, 1) == "H")] <- "H"
+xdmgnd$Cause[which(substr(xdmgnd$CAUSE, 1, 1) == "E")] <- "E"
+xdmgnd$Cause <- factor(xdmgnd$Cause) 
+barplot(table(xdmgnd$Cause))
+bwplot(as.factor(Cause)~ACCDMG, data = xdmgnd, main = "Box Plots of Accident Damage", xlab = "Damage ($)", ylab = "Cause")
+
+```
+
+Casualties: We used the following visualizations, summary statistics, and external supporting evidence to arrive at our hypotheses for Casualties.
+```{r}
+# Derailment, Hwy Crossing
+
+casnd$TYPE <- factor(casnd$TYPE, labels = c("Derailment", "HeadOn", "Rearend", "Side", "Raking", "BrokenTrain", "Hwy-Rail", "GradeX", "Obstruction", "Explosive", "Fire","Other","SeeNarrative" ))
+barplot(table(casnd$TYPE))
+
+mean(casnd$Casualty)
+max(casnd$Casualty)
+plot(1:18, tapply(casnd$Casualty, casnd$YEAR, max), type = "l", xlab = "Year", ylab = "Number Casualties", main = "Max Casualties per Year")
+
+```
+
+Based on the above analysis, we have been able to form some well-informed hypotheses from the visualizations. They are as follows, listed as null and alternative hypotheses and followed by how we arrived at them:
 
 ..As for accident severity in regards to **Accident Damage (ACCDMG)**:
 *1) H0: Accidents involving freight trains do not significantly increase accident damage.*
