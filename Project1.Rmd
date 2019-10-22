@@ -92,19 +92,27 @@ HRX <- as.factor(HRX)
 Based on the analysis conducted in part 1b, I have been able to form some well-informed hypotheses from the visualizations. They are as follows, listed as null and alternative hypotheses and followed by how I arrived at them:
 
 ..As for accident severity in regards to **Accident Damage (ACCDMG)**:
-*1) H0: Higher train speeds among freight trains have no effect on accident damage*
-*Ha: Higher train speeds among freight trains result in higher accident damage*
+*1) H0: Accidents involving freight trains do not significantly increase accident damage.*
+*Ha: Accidents involving freight trains do significantly increase accident damage.*
 
-*2) H0: Accidents caused by Human Factors have no effect on accident damage*
-*Ha Accidents caused by Human Factors have an effect on accident damage*
+*This is an actionable hypothesis because more regulations can be put in place to promote safe driving with freight trains in dangerous areas.*
+
+*2) H0: Accidents caused by Human Factors do not significantly increase accident damage.*
+*Ha Accidents caused by Human Factors do significantly increase accident damage.*
+
+*This is an actionable hypothesis because better recurrent training programs can be implemented to improve conductor and engineer abilities to safely manage tasks when in control of a train.*
 
 ..As for accident severity in regards to **Casualties**: 
 
-*1) H0: Derailment caused accidents do not increase the number of casualties*  
-*Ha: Derailment caused accidents do increase the number of casualties* 
+*1) H0: Derailment caused accidents do not significantly increase the number of casualties.*  
+*Ha: Derailment caused accidents do significantly increase the number of casualties.* 
 
-*2) H0: Highway-rail crossing accidents are more severe than other types of accidents*
-*Ha: Highway-rail crossing accidents are not more severe than other types of accidents*
+*This is an actionable hypothesis because train wheels and tracks can be manufactured in order to prevent derailments.*
+
+*2) H0: Highway-rail crossing accidents do not significantly increase number of casualties.*
+*Ha: Highway-rail crossing accidents are do significantly increase the number of casualties.*
+
+*This is actionable because if the null hypothesis is accepted, then trains can be required to follow more safety precautions when traveling near highways, and other traffic laws can be put in place to encourage safe driving around highway-railroad crossings. *
 
 ## Part 2: ACCDMG Analysis
 
@@ -208,6 +216,23 @@ plot(casnd.lm2,labels.id = NULL, which=4) #Cook's distance
 plot(casnd.lm2,which=5) #Redisuals vs. Leverage
 ```
 Although these graphs still show a violation of assumptions due to large Cook's distances, there is a slight improvement from the previous model after taking the log transformation. 
+
+```{r}
+summary(casnd.lm1)
+summary(casnd.lm2)
+#AIC
+AIC(casnd.lm1)
+AIC(casnd.lm2)
+#BIC
+AIC(casnd.lm1,k=log(nrow(casnd)))
+AIC(casnd.lm2,k=log(nrow(casnd)))
+
+
+```
+The adjusted R2 value for the first model is 0.02212 and for the transformed model it is 0.06468. While the transformed model shows a larger adjusted R2 value and lower AIC and BIC values than the first model, none of these values indicate a strong model. This indicates that neither model is appropriate to assess both hypotheses related to casualties. Thus, in order to determine an effective model to predict casualty severity, we would like to investigate non-linear regression models. 
+
+Although the p-values for Derail (0.002514, 0.026724) and HRX (3.73e-05, < 2e-16) technically indicate significance, the assumptions for the linear models were not met, thus we cannot draw conclusions about our hypotheses from these models. 
+
 
 
 (b) Your treatment of ordinal and categorical variables (i.e., how were
