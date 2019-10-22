@@ -171,15 +171,43 @@ This graph shows a violation of assumptions because the points do not have a mea
 ```{r}
 plot(casnd.lm1,labels.id = NULL, which=4) #Cook's distance
 ```
-This shows a violation of assumptions because there are multiple incidents which have very large Cook's distances.
 
 ```{r}
 plot(casnd.lm1,which=5) #Redisuals vs. Leverage
 ```
+These graphs shows a violation of assumptions because there are incidents with very large Cook's distances.
+
+The analysis above shows that this model does not meet the assumptions required for assessment of this linear model. So, we can conclude that this is not a good model for assessing casualties from train accidents. Therefore, we next perform a log transormation of this model to assess if this creates a more effective model of casualties. 
 
 ```{r}
-plot(casnd.lm1,which=6) #Cook's dist vs. Leverage
+casnd.lm2 <- lm(log(Casualty) ~ Derail + HRX + TEMP + CARS + TRNSPD, data=casnd)
+summary(casnd.lm2)
 ```
+
+#Plot diagnostic graphs individually
+```{r}
+plot(casnd.lm2,which=1) #Residual vs. Fitted
+```
+This plot violates the assumptions for the residual vs fitted diagnostic plot because there is not a mean of zero and there is not a constant variance. 
+
+```{r}
+plot(casnd.lm2,which=2) #QQ
+```
+This graph shows a violation of assumptions because the points clearly do not follow the line. This represents a failure of the Gaussian assumption for the error term. 
+
+```{r}
+plot(casnd.lm2,which=3) #Scale-Location
+```
+This graph shows a violation of assumptions because the points do not have a mean of zero and there is not a constant variance. 
+
+```{r}
+plot(casnd.lm2,labels.id = NULL, which=4) #Cook's distance
+```
+
+```{r}
+plot(casnd.lm2,which=5) #Redisuals vs. Leverage
+```
+Although these graphs still show a violation of assumptions due to large Cook's distances, there is a slight improvement from the previous model after taking the log transformation. 
 
 
 (b) Your treatment of ordinal and categorical variables (i.e., how were
