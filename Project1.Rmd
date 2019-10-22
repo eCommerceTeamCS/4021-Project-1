@@ -7,12 +7,12 @@ output: html_notebook
 
 ```{r setup, include=FALSE}
 require("knitr")
-#traindir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/TrainData"
-#sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
+traindir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/TrainData"
+sourcedir <-"C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
 #traindir <- "/Users/shaynecassidy/Desktop/4021/Data/TrainData"
 #sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
-traindir <- "/Users/student/SYS4021/Data/Trains"
-sourcedir <- "/Users/student/SYS4021/RCode"
+#traindir <- "/Users/student/SYS4021/Data/Trains"
+#sourcedir <- "/Users/student/SYS4021/RCode"
 opts_knit$set(root.dir = sourcedir)
 opts_chunk$set(warning=FALSE)
 ```
@@ -20,7 +20,7 @@ opts_chunk$set(warning=FALSE)
 Load data and combine data from 2001-2018 into totacts.
 ```{r}
 # Source AccidentInput
-setwd("/Users/shaynecassidy/Desktop/4021/RCode")
+#setwd("/Users/shaynecassidy/Desktop/4021/RCode")
 source("AccidentInput.R")
 
 # list of data frames for each year of accident data
@@ -91,14 +91,25 @@ HRX <- as.factor(HRX)
 ACCDMG: We used the following visualizations, summary statistics, and external supporting evidence to arrive at our hypotheses for ACCDMG. 
 ```{r}
 # Freight, Human Factors
+library(lattice)
 mean(xdmgnd$ACCDMG)
 max(xdmgnd$ACCDMG)
+```
 
+```{r}
 xdmgnd$TYPEQ <- as.numeric(xdmgnd$TYPEQ)
 xdmgnd$TYPEQ <- factor(xdmgnd$TYPEQ, labels = c("Freight", "Passenger", "Commuter", "Work",  "Single", "CutofCars", "Yard", "Light", "Maint"))
 barplot(table(xdmgnd$TYPEQ))
-bwplot(as.factor(TYPEQ)~ACCDMG, data = xdmgnd, main = "Box Plots of Accident Damage", xlab = "Damage ($)", ylab = "Type Train")
+```
+Freight trains have the highest number of accidents with extreme damage compared to the other types. Thus, we will further investigate freight trains by including this variable as a part of our hypotheses. 
 
+
+```{r}
+bwplot(as.factor(TYPEQ)~ACCDMG, data = xdmgnd, main = "Box Plots of Accident Damage", xlab = "Damage ($)", ylab = "Type Train")
+```
+Although passenger trains have the accidents with the highest amount of accident damage, freight trains have a higher frequency of accidents with substantial accident damage.
+
+```{r}
 xdmgnd$Cause <- rep(NA, nrow(xdmgnd))
 xdmgnd$Cause[which(substr(xdmgnd$CAUSE, 1, 1) == "M")] <- "M" 
 xdmgnd$Cause[which(substr(xdmgnd$CAUSE, 1, 1) == "T")] <- "T"
@@ -107,22 +118,25 @@ xdmgnd$Cause[which(substr(xdmgnd$CAUSE, 1, 1) == "H")] <- "H"
 xdmgnd$Cause[which(substr(xdmgnd$CAUSE, 1, 1) == "E")] <- "E"
 xdmgnd$Cause <- factor(xdmgnd$Cause) 
 barplot(table(xdmgnd$Cause))
+```
+Although Cause T (Rack, Roadbed and Structures) has the largest number of accidents with extreme accident damage, we thought that investigating Human Factors (the second largest number of accidents with extreme damage) would be a more actionable hypotheses. 
+
+```{r}
 bwplot(as.factor(Cause)~ACCDMG, data = xdmgnd, main = "Box Plots of Accident Damage", xlab = "Damage ($)", ylab = "Cause")
 
 ```
+Additionally, the most costly accidents in this data set are accidents caused by human factors, thus human factors is an important factor to evaluate with our hypotheses. 
 
 Casualties: We used the following visualizations, summary statistics, and external supporting evidence to arrive at our hypotheses for Casualties.
 ```{r}
-# Derailment, Hwy Crossing
-
+# Derailment, Highway-Rail Crossing
 casnd$TYPE <- factor(casnd$TYPE, labels = c("Derailment", "HeadOn", "Rearend", "Side", "Raking", "BrokenTrain", "Hwy-Rail", "GradeX", "Obstruction", "Explosive", "Fire","Other","SeeNarrative" ))
 barplot(table(casnd$TYPE))
-
 mean(casnd$Casualty)
 max(casnd$Casualty)
-plot(1:18, tapply(casnd$Casualty, casnd$YEAR, max), type = "l", xlab = "Year", ylab = "Number Casualties", main = "Max Casualties per Year")
-
 ```
+As seen in the above histogram, Highway-Rail accidents and Derailments have the most number of accidents that result in casualties, so these are important factors to consider when developing hypotheses about casualties. 
+
 
 Based on the above analysis, we have been able to form some well-informed hypotheses from the visualizations. They are as follows, listed as null and alternative hypotheses and followed by how we arrived at them:
 
@@ -163,16 +177,101 @@ they coded);
 
 ```{r}
 source("SPM_Panel.R")
-uva.pairs(xdmgnd[,c("ACCDMG", "TRNSPD", "CARS", "TRKDNSTY", "TONS", "HEADEND1", "CDTRHR", "ENGRS")])
+uva.pairs(xdmgnd[,c("ACCDMG", "TRNSPD", "CARS", "TONS", "HEADEND1", "CDTRHR", "ENGRS")])
 ```
-
-Based on the visualizations and correlation values from the scatter plot matices above, we have decided to include TRNSPD, TRKDNSTY, CARS, TONS, and HEADEND1 as quantitative variables in our model.
+Based on the visualizations and correlation values from the scatter plot matices above, we have decided to include TRNSPD, CARS, TONS, and HEADEND1 as quantitative variables in our model.
 
 To test our hypotheses, we will include the two treated categorical variables, Freight and HF (Human Factors), with the selected quantitative variables in our linear model.
 ```{r}
-xdmgnd.lm1 <- lm(ACCDMG ~ Freight + HF  + CARS + TRNSPD + HEADEND1 + TONS, data=xdmgnd)
+xdmgnd.lm1 <- lm(ACCDMG ~ Freight + HF + CARS + TRNSPD + HEADEND1 + TONS, data=xdmgnd)
 summary(xdmgnd.lm1)
 ```
+
+#Plot diagnostic graphs individually
+```{r}
+plot(xdmgnd.lm1,which=1) #Residual vs. Fitted
+```
+This plot violates the assumptions for the residual vs fitted diagnostic plot because there is not a mean of zero and there is not a constant variance. 
+
+```{r}
+plot(xdmgnd.lm1,which=2) #QQ
+```
+This graph shows a violation of assumptions because the points clearly do not follow the line. This represents a failure of the Gaussian assumption for the error term. 
+
+```{r}
+plot(xdmgnd.lm1,which=3) #Scale-Location
+```
+This graph shows a violation of assumptions because the points do not have a mean of zero and there is not a constant variance. 
+
+```{r}
+plot(xdmgnd.lm1,labels.id = NULL, which=4) #Cook's distance
+```
+
+```{r}
+plot(xdmgnd.lm1,which=5) #Redisuals vs. Leverage
+```
+These graphs shows a violation of assumptions because there are incidents with very large Cook's distances.
+
+The analysis above shows that this model does not meet the assumptions required for assessment of this linear model. So, we can conclude that this is not a good model for assessing casualties from train accidents. Therefore, we next perform a log transormation of this model to assess if this creates a more effective model of casualties. 
+
+```{r}
+xdmgnd.lm2 <- lm(log(ACCDMG) ~ Freight + HF + CARS + TRNSPD + HEADEND1 + TONS, data=xdmgnd)
+summary(xdmgnd.lm2)
+```
+
+#Plot diagnostic graphs individually
+```{r}
+plot(xdmgnd.lm2,which=1) #Residual vs. Fitted
+```
+This graph shows significant improvement from the non-transformed model (xdmgnd.lm1), as there is more constant variance and the mean is closer to 0.
+
+```{r}
+plot(xdmgnd.lm2,which=2) #QQ
+```
+This graph shows significant improvement from the non-transformed model (xdmgnd.lm1), as the points are more linear. However, there is still some deviation from the line which represents a failure of the Gaussian assumption for the error term. 
+
+```{r}
+plot(xdmgnd.lm2,which=3) #Scale-Location
+```
+Although the points still do not have a mean of zero after the transformation, there is more constant variance.
+
+
+```{r}
+plot(xdmgnd.lm2,labels.id = NULL, which=4) #Cook's distance
+```
+
+```{r}
+plot(xdmgnd.lm2,which=5) #Redisuals vs. Leverage
+```
+Clearly, the log transform helped reduce the impact of influential point as the Cook's distances are smaller than in the previous model. 
+
+Based on the diagnostic plots, we feel confident with this transformed model and will run a stepwise regression to determine if we can further improve it.
+```{r}
+xdmgnd.lm2.step<-step(xdmgnd.lm2, trace=T)
+summary(xdmgnd.lm2.step)
+```
+```{r}
+anova(xdmgnd.lm2,xdmgnd.lm2.step)
+```
+The stepwise function removed the Freight variable from our model, indicating that this may not be as important of a factor as we thought when forming our hypothesis. Since the p-value from the partial F-test is greater than 0.05, we fail to reject the null hypothesis and choose the smaller model due to Okham's Razor. 
+
+```{r}
+summary(xdmgnd.lm1)
+summary(xdmgnd.lm2)
+summary(xdmgnd.lm2.step)
+#AIC
+AIC(xdmgnd.lm1)
+AIC(xdmgnd.lm2)
+AIC(xdmgnd.lm2.step)
+#BIC
+AIC(xdmgnd.lm1,k=log(nrow(xdmgnd)))
+AIC(xdmgnd.lm2,k=log(nrow(xdmgnd)))
+AIC(xdmgnd.lm2.step,k=log(nrow(casnd)))
+```
+The adjusted R2 value for the first model is 0.02212 and for the transformed model it is 0.06468. While the transformed model shows a larger adjusted R2 value and lower AIC and BIC values than the first model, none of these values indicate a strong model. This indicates that neither model is appropriate to assess both hypotheses related to casualties. Thus, in order to determine an effective model to predict casualty severity, we would like to investigate non-linear regression models. 
+
+Although the p-values for Derail (0.002514, 0.026724) and HRX (3.73e-05, < 2e-16) technically indicate significance, the assumptions for the linear models were not met, thus we cannot draw conclusions about our hypotheses from these models. 
+
 
 *Hypothesis 2*
 
@@ -201,6 +300,7 @@ uva.pairs(casnd[,c("Casualty", "CARS", "TIMEHR", "TEMP", "TRKDNSTY", "TRNSPD", "
 ```
 Due to the low correlations between casualty and TIMEHR, TONS, and TRKDNSTY, we will not include these variables in our model. 
 
+To test our hypotheses, we will include the two treated categorical variables, Derail and HRX (Highway-Rail Crossing), with the selected quantitative variables in our linear model.
 ```{r}
 casnd.lm1 <- lm(Casualty ~ Derail + HRX + TEMP + CARS + TRNSPD, data=casnd)
 summary(casnd.lm1)
