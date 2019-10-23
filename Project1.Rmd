@@ -2,7 +2,9 @@
 title: "Project 1"
 author: "Shayne Cassidy (sc5za) Sarah Winston Nathan (swn2bf) Sarah Nelson (skn5mq)"
 date: "10/23/2019"
-output: html_notebook
+output:
+  pdf_document: default
+  html_notebook: default
 ---
 
 ```{r setup, include=FALSE}
@@ -98,14 +100,17 @@ max(xdmgnd$ACCDMG)
 
 ```{r}
 xdmgnd$TYPEQ <- as.numeric(xdmgnd$TYPEQ)
-xdmgnd$TYPEQ <- factor(xdmgnd$TYPEQ, labels = c("Freight", "Passenger", "Commuter", "Work",  "Single", "CutofCars", "Yard", "Light", "Maint"))
+xdmgnd$TYPEQ <- factor(xdmgnd$TYPEQ, labels = c("Freight", "Passenger", "Commuter",
+                                                "Work",  "Single", "CutofCars",
+                                                "Yard", "Light", "Maint"))
 barplot(table(xdmgnd$TYPEQ))
 ```
 Freight trains have the highest number of accidents with extreme damage compared to the other types. Thus, we will further investigate freight trains by including this variable as a part of our hypotheses. 
 
 
 ```{r}
-bwplot(as.factor(TYPEQ)~ACCDMG, data = xdmgnd, main = "Box Plots of Accident Damage", xlab = "Damage ($)", ylab = "Type Train")
+bwplot(as.factor(TYPEQ)~ACCDMG, data = xdmgnd, main = "Box Plots of Accident
+       Damage", xlab = "Damage ($)", ylab = "Type Train")
 ```
 Although passenger trains have the accidents with the highest amount of accident damage, freight trains have a higher frequency of accidents with substantial accident damage.
 
@@ -122,7 +127,8 @@ barplot(table(xdmgnd$Cause))
 Although Cause T (Rack, Roadbed and Structures) has the largest number of accidents with extreme accident damage, we thought that investigating Human Factors (the second largest number of accidents with extreme damage) would be a more actionable hypotheses. 
 
 ```{r}
-bwplot(as.factor(Cause)~ACCDMG, data = xdmgnd, main = "Box Plots of Accident Damage", xlab = "Damage ($)", ylab = "Cause")
+bwplot(as.factor(Cause)~ACCDMG, data = xdmgnd, main = "Box Plots of Accident
+       Damage", xlab = "Damage ($)", ylab = "Cause")
 
 ```
 Additionally, the most costly accidents in this data set are accidents caused by human factors, thus human factors is an important factor to evaluate with our hypotheses. 
@@ -130,7 +136,11 @@ Additionally, the most costly accidents in this data set are accidents caused by
 Casualties: We used the following visualizations, summary statistics, and external supporting evidence to arrive at our hypotheses for Casualties.
 ```{r}
 # Derailment, Highway-Rail Crossing
-casnd$TYPE <- factor(casnd$TYPE, labels = c("Derailment", "HeadOn", "Rearend", "Side", "Raking", "BrokenTrain", "Hwy-Rail", "GradeX", "Obstruction", "Explosive", "Fire","Other","SeeNarrative" ))
+casnd$TYPE <- factor(casnd$TYPE, labels = c("Derailment", "HeadOn", "Rearend",
+                                            "Side", "Raking", "BrokenTrain",
+                                            "Hwy-Rail", "GradeX", "Obstruction",
+                                            "Explosive",
+                                            "Fire","Other","SeeNarrative" ))
 barplot(table(casnd$TYPE))
 mean(casnd$Casualty)
 max(casnd$Casualty)
@@ -176,13 +186,15 @@ Based on the above analysis, we have been able to form some well-informed hypoth
 
 ```{r}
 source("SPM_Panel.R")
-uva.pairs(xdmgnd[,c("ACCDMG", "TRNSPD", "CARS", "TONS", "HEADEND1", "CDTRHR", "ENGRS")])
+uva.pairs(xdmgnd[,c("ACCDMG", "TRNSPD", "CARS", "TONS", "HEADEND1", "CDTRHR",
+                    "ENGRS")])
 ```
 Based on the visualizations and correlation values from the scatter plot matices above, we have decided to include TRNSPD, CARS, TONS, and HEADEND1 as quantitative variables in our model.
 
 To test our hypotheses, we will include the two treated categorical variables, Freight and HF (Human Factors), with the selected quantitative variables in our linear model.
 ```{r}
-xdmgnd.lm1 <- lm(ACCDMG ~ Freight + HF + CARS + TRNSPD + HEADEND1 + TONS, data=xdmgnd)
+xdmgnd.lm1 <- lm(ACCDMG ~ Freight + HF + CARS + TRNSPD + HEADEND1 + TONS,
+                 data=xdmgnd)
 summary(xdmgnd.lm1)
 ```
 
@@ -214,7 +226,8 @@ These graphs shows a violation of assumptions because there are incidents with v
 The analysis above shows that this model does not meet the assumptions required for assessment of this linear model. So, we can conclude that this is not a good model for assessing casualties from train accidents. Therefore, we next perform a log transormation of this model to assess if this creates a more effective model of casualties. 
 
 ```{r}
-xdmgnd.lm2 <- lm(log(ACCDMG) ~ Freight + HF + CARS + TRNSPD + HEADEND1 + TONS, data=xdmgnd)
+xdmgnd.lm2 <- lm(log(ACCDMG) ~ Freight + HF + CARS + TRNSPD + HEADEND1 + TONS,
+                 data=xdmgnd)
 summary(xdmgnd.lm2)
 ```
 
@@ -283,7 +296,8 @@ The p-values for both Freight (0.00104, **0.4565**, NA) and HF (1.4e-11, 0.0248,
 
 ```{r}
 source("SPM_Panel.R")
-uva.pairs(casnd[,c("Casualty", "CARS", "TIMEHR", "TEMP", "TRKDNSTY", "TRNSPD", "TONS")])
+uva.pairs(casnd[,c("Casualty", "CARS", "TIMEHR", "TEMP", "TRKDNSTY", "TRNSPD",
+                   "TONS")])
 ```
 Due to the low correlations between casualty and TIMEHR, TONS, and TRKDNSTY, we will not include these variables in our model. 
 
