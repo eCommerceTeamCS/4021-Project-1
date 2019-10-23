@@ -1,7 +1,7 @@
 ---
 title: "Project 1"
 author: "Shayne Cassidy (sc5za) Sarah Winston Nathan (swn2bf) Sarah Nelson (skn5mq)"
-date: "10/20/2019"
+date: "10/23/2019"
 output: html_notebook
 ---
 
@@ -163,17 +163,16 @@ Based on the above analysis, we have been able to form some well-informed hypoth
 
 *This is actionable because if the null hypothesis is accepted, then trains can be required to follow more safety precautions when traveling near highways, and other traffic laws can be put in place to encourage safe driving around highway-railroad crossings. *
 
+
 ## Part 2: ACCDMG Analysis
 
-*Hypothesis 1*
+*Hypotheses 1 and 2*
 
-Fill in here steps a-e
-(a) The feature and model selection techniques you used to find appropriate models for this problem;
-(b) Your treatment of ordinal and categorical variables (i.e., how were
-they coded);
-(c) How you assessed your models (e.g., adjusted R2, AIC, etc.);
-(d) How you diagnosed problems with the models; and
-(e) How you adjusted the models based on these assessments.
+*1) H0: Accidents involving freight trains do not significantly increase accident damage.*
+*Ha: Accidents involving freight trains do significantly increase accident damage.*
+
+*2) H0: Accidents caused by Human Factors do not significantly increase accident damage.*
+*Ha Accidents caused by Human Factors do significantly increase accident damage.*
 
 ```{r}
 source("SPM_Panel.R")
@@ -256,9 +255,9 @@ anova(xdmgnd.lm2,xdmgnd.lm2.step)
 The stepwise function removed the Freight variable from our model, indicating that this may not be as important of a factor as we thought when forming our hypothesis. Since the p-value from the partial F-test is greater than 0.05, we fail to reject the null hypothesis and choose the smaller model due to Okham's Razor. 
 
 ```{r}
-summary(xdmgnd.lm1)
-summary(xdmgnd.lm2)
-summary(xdmgnd.lm2.step)
+summary(xdmgnd.lm1)$adj.r.squared
+summary(xdmgnd.lm2)$adj.r.squared
+summary(xdmgnd.lm2.step)$adj.r.squared
 #AIC
 AIC(xdmgnd.lm1)
 AIC(xdmgnd.lm2)
@@ -268,31 +267,19 @@ AIC(xdmgnd.lm1,k=log(nrow(xdmgnd)))
 AIC(xdmgnd.lm2,k=log(nrow(xdmgnd)))
 AIC(xdmgnd.lm2.step,k=log(nrow(casnd)))
 ```
-The adjusted R2 value for the first model is 0.02212 and for the transformed model it is 0.06468. While the transformed model shows a larger adjusted R2 value and lower AIC and BIC values than the first model, none of these values indicate a strong model. This indicates that neither model is appropriate to assess both hypotheses related to casualties. Thus, in order to determine an effective model to predict casualty severity, we would like to investigate non-linear regression models. 
+The adjusted R2 value for the first model is 0.07191597 and for the transformed model it is 0.1757921, which is clearly a significant improvement. The stepwise regression, which removed the freight variable has an R2 value of 0.1758473, which is a slight improvement from the original transformed model. Additionally, which each new model, the AIC and BIC decreased, particularly after doing the log transformation.
 
-Although the p-values for Derail (0.002514, 0.026724) and HRX (3.73e-05, < 2e-16) technically indicate significance, the assumptions for the linear models were not met, thus we cannot draw conclusions about our hypotheses from these models. 
-
-
-*Hypothesis 2*
-
-Fill in here steps a-e
-(a) The feature and model selection techniques you used to find appropriate models for this problem;
-(b) Your treatment of ordinal and categorical variables (i.e., how were
-they coded);
-(c) How you assessed your models (e.g., adjusted R2, AIC, etc.);
-(d) How you diagnosed problems with the models; and
-(e) How you adjusted the models based on these assessments.
-
+The p-values for both Freight (0.00104, **0.4565**, NA) and HF (1.4e-11, 0.0248, **0.0289**) increased when we performed the transformation. However, Human Factors remains significant in each model, while Freight does not. Thus, we can reject the null hypothesis that Human Factors does not significantly increase accident damage and we fail to reject the null hypothesis that Freight does not significantly increase accident damage. 
 
 ## Part 3: Casualties
 
-*Hypothesis 1*
+*Hypotheses 1 and 2*
 
-*1) H0: Derailment caused accidents do not increase the number of casualties*  
-*Ha: Derailment caused accidents do increase the number of casualties* 
+*1) H0: Derailment caused accidents do not significantly increase the number of casualties.*  
+*Ha: Derailment caused accidents do significantly increase the number of casualties.* 
 
-Fill in here steps a-e
-(a) The feature and model selection techniques you used to find appropriate models for this problem;
+*2) H0: Highway-rail crossing accidents do not significantly increase number of casualties.*
+*Ha: Highway-rail crossing accidents are do significantly increase the number of casualties.*
 
 ```{r}
 source("SPM_Panel.R")
@@ -380,28 +367,23 @@ The adjusted R2 value for the first model is 0.02212 and for the transformed mod
 
 Although the p-values for Derail (0.002514, 0.026724) and HRX (3.73e-05, < 2e-16) technically indicate significance, the assumptions for the linear models were not met, thus we cannot draw conclusions about our hypotheses from these models. 
 
-
-
-(b) Your treatment of ordinal and categorical variables (i.e., how were
-they coded);
-(c) How you assessed your models (e.g., adjusted R2, AIC, etc.);
-(d) How you diagnosed problems with the models; and
-(e) How you adjusted the models based on these assessments.
-
-
-*Hypothesis 2* 
-
-Fill in here steps a-e
-(a) The feature and model selection techniques you used to find appropriate models for this problem;
-(b) Your treatment of ordinal and categorical variables (i.e., how were
-they coded);
-(c) How you assessed your models (e.g., adjusted R2, AIC, etc.);
-(d) How you diagnosed problems with the models; and
-(e) How you adjusted the models based on these assessments.
-
-
 ## Part 4: Evidence and Recommendations to FRA
 
 ### Part a)
 
+*ACCDMG*
+The p-values for both Freight (0.00104, **0.4565**, NA) and HF (1.4e-11, 0.0248, **0.0289**) increased when we performed the transformation. However, Human Factors remains significant in each model, while Freight does not. Thus, we can reject the null hypothesis that Human Factors does not significantly increase accident damage and we fail to reject the null hypothesis that Freight does not significantly increase accident damage. 
+
+
+*Casualties*
+Although the p-values for Derail (0.002514, 0.026724) and HRX (3.73e-05, < 2e-16) technically indicate significance, the assumptions for the linear models were not met, thus we cannot draw conclusions about our hypotheses from these models. So, in order to reject or accept these hypotheses, more models would need to be explored to perform a statistically significant assessment.
+
+
 ### Part b)
+
+*ACCDMG*
+We recommend to not focus on freight trains when attempting to reduce accident damage. We do recommend further investigating human factors. They do impact accident damage, so measures could be put in place to reduce accidents caused by human factor errors. According to the US Department of Transportation, the main initiatives of the Action Plan are intended to reduce accidents caused by human factors by addressing fatigue, improving highway-rail-grade crossing safety, and enhancing emergency preparedness training (Sarah).
+
+*Casualties*
+Because the diagnostic plot assumptions were not met in any of our models assessing casualties, we recommend looking into non-linear regression models to evaluate accidents with many casualties. Because many of the accidents with casualties only have a small number of casualties, it might be beneficial to look into a Poisson or Weibull models.
+
