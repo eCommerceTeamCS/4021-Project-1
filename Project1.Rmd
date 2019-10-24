@@ -396,7 +396,7 @@ Although the p-values for Derail (0.002514, 0.026724) and HRX (3.73e-05, < 2e-16
 ### Part b)
 
 *ACCDMG*
-We recommend to not focus on freight trains when attempting to reduce accident damage. We do recommend further investigating human factors. They do impact accident damage, so measures could be put in place to reduce accidents caused by human factor errors. According to the US Department of Transportation, the main initiatives of the Action Plan are intended to reduce accidents caused by human factors by addressing fatigue, improving highway-rail-grade crossing safety, and enhancing emergency preparedness training (Sarah).
+We recommend to not focus on freight trains when attempting to reduce accident damage. We do recommend further investigating human factors. They do impact accident damage, so measures could be put in place to reduce accidents caused by human factor errors. According to the US Department of Transportation, the main initiatives of the Action Plan are intended to reduce accidents caused by human factors by addressing fatigue, improving highway-rail-grade crossing safety, and enhancing emergency preparedness training (https://www.transportation.gov/testimony/role-human-factors-rail-accidents).
 
 *Casualties*
 Because the diagnostic plot assumptions were not met in any of our models assessing casualties, we recommend looking into non-linear regression models to evaluate accidents with many casualties. Because many of the accidents with casualties only have a small number of casualties, it might be beneficial to look into a Poisson or Weibull models.
