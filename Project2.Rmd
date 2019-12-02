@@ -1,7 +1,7 @@
 ---
 title: "Project 2"
-author: "Group Members' Names"
-date: "Date"
+author: "Shayne Cassidy, Sarah Nelson, Sarah Winston Nathan"
+date: "12-6-2019"
 output:
   pdf_document: default
   html_document: default
