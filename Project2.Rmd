@@ -49,3 +49,20 @@ AQdata <- i$filled.dataset
 dailyAQ <- aggregate(AQdata, by=list(as.Date(airquality[,1],"%m/%d/%Y")), FUN=max)
 ```
 
+## Part 1: Building Univariate Time Series Models
+
+## Part 2: Building Multivariate Time Series Models
+
+## Part 3: Simulating from Univariate and Multivariate Time Series Models
+
+
+
+
+
+
+
+
+
+
+
+
