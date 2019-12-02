@@ -1,0 +1,52 @@
+---
+title: "Project 2"
+author: "Group Members' Names"
+date: "Date"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+require("knitr")
+sourcedir <- "J:/private/SYS4021/R_Code"
+datadir <- "J:/private/SYS4021/Data/AirQualityUCI"
+opts_knit$set(root.dir = sourcedir)
+library(forecast)
+library(mtsdi)
+library(MTS)
+```
+
+# Load data and impute missing values
+```{r, warning=FALSE}
+setwd(datadir)
+
+airquality = read.csv('AirQualityUCI.csv')
+
+# replace -200 with NA
+airquality[airquality == -200] <- NA
+
+# convert integer type to numeric
+intcols = c(4,5,7,8,9,10,11,12)
+for(i in 1:length(intcols)){
+  airquality[,intcols[i]] <- as.numeric(airquality[,intcols[i]])
+}
+
+setwd(sourcedir)
+
+# create new data frame with just CO and NO2
+AQdata = airquality[,c(3,10)]
+
+# impute missing air quality data
+f <- ~ CO.GT. + NO2.GT.
+t <- c(seq(1,dim(AQdata)[1],1))
+i <- mnimput(f, AQdata, eps=1e-3, ts=TRUE, method='gam', 
+             ga.control=list(formula=paste(names(AQdata)[c(1:3)],'~ns(t,2)')))
+
+# set airquality to imputed data
+AQdata <- i$filled.dataset
+
+# aggregate to daily maxima for model building
+dailyAQ <- aggregate(AQdata, by=list(as.Date(airquality[,1],"%m/%d/%Y")), FUN=max)
+```
+
