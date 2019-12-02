@@ -9,8 +9,8 @@ output:
 
 ```{r setup, include=FALSE}
 require("knitr")
-sourcedir <- "J:/private/SYS4021/R_Code"
-datadir <- "J:/private/SYS4021/Data/AirQualityUCI"
+sourcedir <- "/Users/shaynecassidy/Desktop/4021/RCode"
+datadir <- "/Users/shaynecassidy/Desktop/4021-Project-1/AirQualityUCI"
 opts_knit$set(root.dir = sourcedir)
 library(forecast)
 library(mtsdi)
@@ -20,7 +20,6 @@ library(MTS)
 # Load data and impute missing values
 ```{r, warning=FALSE}
 setwd(datadir)
-
 airquality = read.csv('AirQualityUCI.csv')
 
 # replace -200 with NA
