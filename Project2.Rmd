@@ -72,8 +72,15 @@ Boxplot(NO2.ts)
 ```{r}
 acf(CO.ts)
 acf(NO2.ts)
+# both show sinusoidal exponential decay --> AR model
 
 pg.CO <- spec.pgram(CO.ts,spans=9,demean=T,log='no')
+
+pacf(CO.ts) #AR(23)?
+pacf(NO2.ts) #AR(23)?
+
+CO.trend.seasonal <- lm(CO.ts ~ t + sin(2*pi*t/12) + cos(2*pi*t/12))
+summary(CO.trend.seasonal) #doesn't work
 
 ```
 
