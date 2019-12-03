@@ -9,8 +9,9 @@ output:
 
 ```{r setup, include=FALSE}
 require("knitr")
-sourcedir <- "/Users/shaynecassidy/Desktop/4021/RCode"
-datadir <- "/Users/shaynecassidy/Desktop/4021-Project-1/AirQualityUCI"
+datadir <- "/Users/shaynecassidy/Desktop/4021/Data/AirQualityUCI"
+sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
+
 # sourcedir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
 # datadir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/AirQualityUCI"
 opts_knit$set(root.dir = sourcedir)
