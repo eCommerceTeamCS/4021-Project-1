@@ -50,6 +50,28 @@ dailyAQ <- aggregate(AQdata, by=list(as.Date(airquality[,1],"%m/%d/%Y")), FUN=ma
 ```
 
 ## Part 1: Building Univariate Time Series Models
+```{r}
+AQ.CO <- dailyAQ$CO.GT.
+AQ.NO2 <- dailyAQ$NO2.GT.
+
+CO.ts<-ts(AQ.CO)
+NO2.ts<-ts(AQ.NO2)
+
+plot(CO.ts)
+plot(NO2.ts)
+
+library("car")
+Boxplot(CO.ts)
+Boxplot(NO2.ts)
+
+# Part A: Seasonality 
+acf(CO.ts)
+acf(NO2.ts)
+
+pg.CO <- spec.pgram(CO.ts,spans=9,demean=T,log='no')
+
+
+```
 
 ## Part 2: Building Multivariate Time Series Models
 
