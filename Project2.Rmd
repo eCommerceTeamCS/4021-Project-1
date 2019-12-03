@@ -13,6 +13,8 @@ sourcedir <- "/Users/shaynecassidy/Desktop/4021/RCode"
 datadir <- "/Users/shaynecassidy/Desktop/4021-Project-1/AirQualityUCI"
 # sourcedir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
 # datadir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/AirQualityUCI"
+# sourcedir <- "C:/Users/student/SYS4021/RCode"
+# datadir <- "C:/Users/student/SYS4021/Data/AirQualityUCI/"
 opts_knit$set(root.dir = sourcedir)
 library(forecast)
 library(mtsdi)
@@ -49,23 +51,24 @@ AQdata <- i$filled.dataset
 
 # aggregate to daily maxima for model building
 dailyAQ <- aggregate(AQdata, by=list(as.Date(airquality[,1],"%m/%d/%Y")), FUN=max)
+
+# remove last 7 days
+dailyAQ <- dailyAQ[1:(dim(dailyAQ)[1]-7),]
 ```
 
 
 ## Part 1: Building Univariate Time Series Models
 ```{r}
 AQ.CO <- dailyAQ$CO.GT.
+#AQ.CO <- AQdata$CO.GT.
 AQ.NO2 <- dailyAQ$NO2.GT.
+#AQ.NO2<-AQdata$NO2.GT.
 
 CO.ts<-ts(AQ.CO)
 NO2.ts<-ts(AQ.NO2)
 
 plot(CO.ts)
 plot(NO2.ts)
-
-library("car")
-Boxplot(CO.ts)
-Boxplot(NO2.ts)
 ```
 
 # Part A: Seasonality 
@@ -75,24 +78,143 @@ acf(NO2.ts)
 # both show sinusoidal exponential decay --> AR model
 
 pg.CO <- spec.pgram(CO.ts,spans=9,demean=T,log='no')
+# spikes in periodagram at repeated frequencies --> indicates seasonality present
+max.pg.CO<-pg.CO$freq[which(pg.CO$spec==max(pg.CO$spec))]
 
-pacf(CO.ts) #AR(23)?
-pacf(NO2.ts) #AR(23)?
+# Where is the peak? -->0.002604167
+max.pg.CO
 
-CO.trend.seasonal <- lm(CO.ts ~ t + sin(2*pi*t/12) + cos(2*pi*t/12))
-summary(CO.trend.seasonal) #doesn't work
+# What is the period? -->384
+1/max.pg.CO
+```
+```{r}
+pg.NO2 <- spec.pgram(NO2.ts,spans=9,demean=T,log='no')
+# spikes in periodagram at repeated frequencies --> indicates seasonality present
+max.pg.NO2<-pg.CO$freq[which(pg.NO2$spec==max(pg.NO2$spec))]
 
+# Where is the peak? -->0.00520833
+max.pg.NO2
+
+# What is the period? -->192
+1/max.pg.NO2
 ```
 
 # Part B: Trends
 ```{r}
+# Build a new model, CO.trend which predicts CO.ts based on the time variable
+time<-c(1:(length(CO.ts)))
+CO.trend<-lm(CO.ts ~ time)
+NO2.trend<-lm(NO2.ts ~ time)
 
+summary(CO.trend)
+summary(NO2.trend)
 ```
-
-# Part C: Auto-Regressive and Moving Average
+# Plot CO.trend model
 ```{r}
+{plot(time, CO.ts, type = "l")
+abline(CO.trend, col = "red")}
+```
+# Plot NO2.trend model
+```{r}
+{plot(time, NO2.ts, type = "l")
+abline(NO2.trend, col = "red")}
+```
+# Model diagnostics for CO.trend
+```{r}
+par(mfrow=c(2,2))
+plot(CO.trend, labels.id = NULL)
+par(mfrow=c(1,1))
+```
+# Model diagnostics for NO2.trend
+```{r}
+par(mfrow=c(2,2))
+plot(NO2.trend, labels.id = NULL)
+par(mfrow=c(1,1))
+```
+# add seasonality component to CO.trend
+```{r}
+CO.trend.seasonal <- lm(CO.ts ~ time + sin(2*pi*time/384) + cos(2*pi*time/384))
+summary(CO.trend.seasonal)
+```
+# add seasonality component to NO2.trend
+```{r}
+NO2.trend.seasonal <- lm(NO2.ts ~ time + sin(2*pi*time/192) + cos(2*pi*time/192))
+summary(NO2.trend.seasonal)
+```
+# Model diagnostics for CO.trend.seasonal
+```{r}
+par(mfrow=c(2,2))
+plot(CO.trend.seasonal, labels.id = NULL)
+par(mfrow=c(1,1))
+```
+# Model diagnostics for NO2.trend.seasonal
+```{r}
+par(mfrow=c(2,2))
+plot(NO2.trend.seasonal, labels.id = NULL)
+par(mfrow=c(1,1))
+```
+
+## Part C: Auto-Regressive and Moving Average
+#Get the residuals from the CO.trend.seasonal model above and store in e.ts:
+```{r}
+e.ts.CO<-ts(CO.trend.seasonal$residuals)
+```
+#Get the residuals from the NO2.trend.seasonal model above and store in e.ts:
+```{r}
+e.ts.NO2<-ts(NO2.trend.seasonal$residuals)
+```
+#Plot the residuals for the CO.trend.seasonal model NO2.trend.seasonal
+```{r}
+plot(e.ts.CO, ylab = "Residuals from CO Model")
+plot(e.ts.NO2, ylab = "Residuals from NO2 Model")
+```
+# Plot the autocorrelation (ACF) and partial autocorrelation (PACF) of the residuals of CO.trend.seasonal
+```{r}
+par(mfrow=c(1,2))
+acf(e.ts.CO, main="ACF of Residuals\nfrom CO.trend.seasonal")
+pacf(e.ts.CO,main="PACF of Residuals\nfrom CO.trend.seasonal")
+par(mfrow=c(1,1))
+```
+# Plot the autocorrelation (ACF) and partial autocorrelation (PACF) of the residuals of NO2.trend.seasonal
+```{r}
+par(mfrow=c(1,2))
+acf(e.ts.NO2, main="ACF of Residuals\nfrom NO2.trend.seasonal")
+pacf(e.ts.NO2,main="PACF of Residuals\nfrom NO2.trend.seasonal")
+par(mfrow=c(1,1))
+```
+# Do we need to consider a first order difference of our residuals?
+```{r}
+par(mfrow=c(1,2))
+acf(diff(e.ts.CO), main="Diff ACF of Residuals\nfrom CO.trend.seasonal")
+pacf(diff(e.ts.CO),main="Diff PACF of Residuals\nfrom CO.trend.seasonal")
+par(mfrow=c(1,1))
+```
+# Let us choose p and q terms for e.ts.temp based on the acf and pacf 
+
+# Choose p and q terms for e.ts.temp based on the acf and pacf 
+
+# ar(1) p=1
+```{r}
+CO.ar1 <- arima(e.ts.CO, order=c(25,0,0), include.mean=FALSE)
+summary(CO.ar1)
 
 ```
+# ma(2) p=0, q=2
+```{r}
+CO.ma2 <- arima(e.ts.CO, order=c(0,0,25), include.mean=FALSE)
+summary(CO.ma2)
+```
+# arma(1,2) p=1, q=2
+```{r}
+CO.arma12 <- arima(e.ts.CO, order=c(10,0,12), include.mean=FALSE)
+summary(CO.arma12)
+```
+# Based on AIC, which one do you choose?
+```{r}
+CO.auto <- auto.arima(e.ts.CO,approximation=FALSE)
+summary(CO.auto)
+```
+
 
 # Part D: Assessment of Models
 ```{r}
