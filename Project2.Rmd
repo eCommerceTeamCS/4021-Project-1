@@ -49,6 +49,7 @@ AQdata <- i$filled.dataset
 dailyAQ <- aggregate(AQdata, by=list(as.Date(airquality[,1],"%m/%d/%Y")), FUN=max)
 ```
 
+
 ## Part 1: Building Univariate Time Series Models
 ```{r}
 AQ.CO <- dailyAQ$CO.GT.
@@ -63,28 +64,100 @@ plot(NO2.ts)
 library("car")
 Boxplot(CO.ts)
 Boxplot(NO2.ts)
+```
 
 # Part A: Seasonality 
+```{r}
 acf(CO.ts)
 acf(NO2.ts)
 
 pg.CO <- spec.pgram(CO.ts,spans=9,demean=T,log='no')
 
+```
+
+# Part B: Trends
+```{r}
 
 ```
 
+# Part C: Auto-Regressive and Moving Average
+```{r}
+
+```
+
+# Part D: Assessment of Models
+```{r}
+
+```
+
+# Part E: Diagnostics
+```{r}
+
+```
+
+
 ## Part 2: Building Multivariate Time Series Models
+```{r}
+
+```
+
+# Part A: Seasonality
+```{r}
+
+```
+
+# Part B: Trends
+```{r}
+
+```
+
+# Part C: Auto-Regressive and Moving Average
+```{r}
+
+```
+
+# Part D: Assessment of Models
+```{r}
+
+```
+
+# Part E: Diagnostics
+```{r}
+
+```
+
 
 ## Part 3: Simulating from Univariate and Multivariate Time Series Models
+```{r}
 
+```
 
+# Part A: Ability to reproduce appearance
+```{r}
 
+```
 
+# Part B: Ability to reproduce observed trends
+```{r}
 
+```
 
+# Part C: Ability to reproduce seasonality
+```{r}
 
+```
 
+# Part D: Ability to reproduce observed mean and variance
+```{r}
 
+```
 
+# Part E: Ability to reproduce auto-correlation
+```{r}
 
+```
 
+# Part F: Ability to reproduce observed cross-correlation
+```{r}
+
+```
