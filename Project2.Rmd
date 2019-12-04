@@ -270,86 +270,141 @@ ar(1) p=1
 ```{r}
 CO.ar1 <- arima(e.ts.CO, order=c(1,0,0), include.mean=FALSE)
 summary(CO.ar1)
-# AIC = 1452.36
 ```
+AIC = 1423.98
+
 ar(2) p=2
 ```{r}
 CO.ar2 <- arima(e.ts.CO, order=c(2,0,0), include.mean=FALSE)
 summary(CO.ar2)
-# AIC = 1452.36
 ```
+AIC = 1421.05
+
 ar(3) p=3
 ```{r}
 CO.ar3 <- arima(e.ts.CO, order=c(3,0,0), include.mean=FALSE)
 summary(CO.ar3)
-# AIC = 1452.36
 ```
+AIC = 1416.17
+
 ma(1) p=0, q=1
 ```{r}
 CO.ma1 <- arima(e.ts.CO, order=c(0,0,1), include.mean=FALSE)
 summary(CO.ma1)
-# AIC = 1455.71
 ```
+AIC = 1449.39
+
 ma(2) p=0, q=2
 ```{r}
 CO.ma2 <- arima(e.ts.CO, order=c(0,0,2), include.mean=FALSE)
 summary(CO.ma2)
-# AIC = 1455.71
 ```
+AIC = 1438.97
+
 ma(3) p=0, q=3
 ```{r}
 CO.ma3 <- arima(e.ts.CO, order=c(0,0,3), include.mean=FALSE)
 summary(CO.ma3)
-# AIC = 1455.71
 ```
+AIC = 1426.24
+
 arma(1,3) p=1, q=3
 ```{r}
 CO.arma13 <- arima(e.ts.CO, order=c(1,0,3), include.mean=FALSE)
 summary(CO.arma13)
-# AIC = 1457.24. 
 ```
+AIC = 1418.89
+
 arma(1,2) p=1, q=2
 ```{r}
 CO.arma12 <- arima(e.ts.CO, order=c(1,0,2), include.mean=FALSE)
 summary(CO.arma12)
-# AIC = 1457.24. 
 ```
+AIC = 1417.89
+
 arma(2,3) p=2, q=3
 ```{r}
 CO.arma23 <- arima(e.ts.CO, order=c(2,0,3), include.mean=FALSE)
 summary(CO.arma23)
-# AIC = 1457.24. 
 ```
-Based on the above AIC values, we would choose model AR(1) because it has the lowest value. 
+AIC = 1419.15
+
+Based on the above AIC values, we would choose model AR(3) because it has the lowest value. 
 As a final step, we will use the auto.arima function on e.ts.CO. 
 ```{r}
 CO.auto <- auto.arima(e.ts.CO,approximation=FALSE)
 summary(CO.auto)
 ```
-The auto arima function supports the use of AR(1) as our model, with an AIC of 1452.36
+The auto arima function supports the use of AR(3) as our model, with an AIC of 1416.27. 
+We will move forward using AR(3) to model the residuals of our CO.trend.seasonal model.
 
 # Modeling e.ts.NO2 
 
 Now we will try out some models for e.ts.CO using p=2 and q=3. 
 
+ar(1) p=1
+```{r}
+NO2.ar1 <- arima(e.ts.NO2, order=c(1,1,0), include.mean=FALSE)
+summary(NO2.ar1)
+```
+AIC = 
+
 ar(2) p=2
 ```{r}
 NO2.ar2 <- arima(e.ts.NO2, order=c(2,1,0), include.mean=FALSE)
 summary(NO2.ar2)
-# AIC = 3820.68
 ```
+AIC = 
+
+ar(3) p=3
+```{r}
+NO2.ar3 <- arima(e.ts.NO2, order=c(3,1,0), include.mean=FALSE)
+summary(NO2.ar3)
+```
+AIC = 
+
+ma(1) p=0, q=1
+```{r}
+NO2.ma1 <- arima(e.ts.NO2, order=c(0,1,1), include.mean=FALSE)
+summary(NO2.ma1)
+```
+AIC =
+
+ma(2) p=0, q=2
+```{r}
+NO2.ma2 <- arima(e.ts.NO2, order=c(0,1,2), include.mean=FALSE)
+summary(NO2.ma3)
+```
+AIC =
+
 ma(3) p=0, q=3
 ```{r}
 NO2.ma3 <- arima(e.ts.NO2, order=c(0,1,3), include.mean=FALSE)
 summary(NO2.ma3)
-# AIC = 3786.07
 ```
+AIC = 
+
+arma(1,2) p=1, q=2
+```{r}
+NO2.arma12 <- arima(e.ts.NO2, order=c(1,1,2), include.mean=FALSE)
+summary(NO2.arma12)
+```
+AIC = 
+
+arma(1,3) p=1, q=3
+```{r}
+NO2.arma13 <- arima(e.ts.NO2, order=c(1,1,3), include.mean=FALSE)
+summary(NO2.arma13)
+```
+AIC = 
+
 arma(2,3) p=2, q=3
 ```{r}
 NO2.arma23 <- arima(e.ts.NO2, order=c(2,1,3), include.mean=FALSE)
 summary(NO2.arma23)
-# AIC = 3786.98
 ```
+AIC = 
+
 As a final step, we will use the auto.arima function on e.ts.NO2. 
 ```{r}
 NO2.auto <- auto.arima(e.ts.NO2,approximation=FALSE)
