@@ -124,22 +124,35 @@ NO2.trend<-lm(NO2.ts ~ time)
 
 summary(CO.trend)
 summary(NO2.trend)
+
+# Here we built two new models, CO.trend and No2.trend, that both model the trend components. 
+# For CO.trend, the p-value is 0.00097, and for NO2.trend, the p-value is <2.2e-16. Therefore, the trend 
+# component is significant in both models and must be considered.
 ```
 # Plot CO.trend model
 ```{r}
 {plot(time, CO.ts, type = "l")
 abline(CO.trend, col = "red")}
+# As seen in the plot of the CO.trend model, we can see that there is a clear upward trend line, which 
+# supports the results of our statistical test. 
 ```
+
 # Plot NO2.trend model
 ```{r}
 {plot(time, NO2.ts, type = "l")
 abline(NO2.trend, col = "red")}
+# As seen in the plot of the NO2.trend model, we can see that there is a clear upward trend line.
+# From the naked eye, the slope seems more drastic than with the trend line from CO.trend model. 
+# This supports the results of our statistical test. 
 ```
 # Model diagnostics for CO.trend
 ```{r}
 par(mfrow=c(2,2))
 plot(CO.trend, labels.id = NULL)
 par(mfrow=c(1,1))
+# For the residuals versus fitted plot, the mean is about zero and there seems to be constant variance.
+# There are a few outliers.
+# For the Q-Q plot, 
 ```
 # Model diagnostics for NO2.trend
 ```{r}
