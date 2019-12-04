@@ -347,101 +347,114 @@ ar(1) p=1
 NO2.ar1 <- arima(e.ts.NO2, order=c(1,1,0), include.mean=FALSE)
 summary(NO2.ar1)
 ```
-AIC = 
+AIC = 3794.26
 
 ar(2) p=2
 ```{r}
 NO2.ar2 <- arima(e.ts.NO2, order=c(2,1,0), include.mean=FALSE)
 summary(NO2.ar2)
 ```
-AIC = 
+AIC = 3764.89
 
 ar(3) p=3
 ```{r}
 NO2.ar3 <- arima(e.ts.NO2, order=c(3,1,0), include.mean=FALSE)
 summary(NO2.ar3)
 ```
-AIC = 
+AIC = 3764.98
 
 ma(1) p=0, q=1
 ```{r}
 NO2.ma1 <- arima(e.ts.NO2, order=c(0,1,1), include.mean=FALSE)
 summary(NO2.ma1)
 ```
-AIC =
+AIC = 3759.62
 
 ma(2) p=0, q=2
 ```{r}
 NO2.ma2 <- arima(e.ts.NO2, order=c(0,1,2), include.mean=FALSE)
-summary(NO2.ma3)
+summary(NO2.ma2)
 ```
-AIC =
+AIC = 3748.95
 
 ma(3) p=0, q=3
 ```{r}
 NO2.ma3 <- arima(e.ts.NO2, order=c(0,1,3), include.mean=FALSE)
 summary(NO2.ma3)
 ```
-AIC = 
+AIC = 3750.79
 
 arma(1,2) p=1, q=2
 ```{r}
 NO2.arma12 <- arima(e.ts.NO2, order=c(1,1,2), include.mean=FALSE)
 summary(NO2.arma12)
 ```
-AIC = 
+AIC = 3746.02
 
 arma(1,3) p=1, q=3
 ```{r}
 NO2.arma13 <- arima(e.ts.NO2, order=c(1,1,3), include.mean=FALSE)
 summary(NO2.arma13)
 ```
-AIC = 
+AIC = 3744.05
 
 arma(2,3) p=2, q=3
 ```{r}
 NO2.arma23 <- arima(e.ts.NO2, order=c(2,1,3), include.mean=FALSE)
 summary(NO2.arma23)
 ```
-AIC = 
+AIC = 3744.7
 
+Based on the above AIC values, we would choose model ARMA(1,3) because it has the lowest AIC value. 
 As a final step, we will use the auto.arima function on e.ts.NO2. 
 ```{r}
 NO2.auto <- auto.arima(e.ts.NO2,approximation=FALSE)
 summary(NO2.auto)
-# AIC = 3781.53
 ```
-Is the auto.arima function always the right model to go with? how does it incorporate differencing?
-Auto.arima said ARIMA(2,0,1)? What does this mean
+AIC = 3746.02
+Because it has a lower AIC (3744.05) than the model from the auto.arima function (3746.02), we will move forward using ARMA(1,3) with a first order difference of the residuals for our NO2.trend.seasonal model.
 
-# Part D: Assessment of Models
+# Part D: Assessment of Models -- update these
 We used AIC and diagnostics to assess the models for CO. 
 ```{r}
-AIC(CO.ar1) # AIC = 1452.36
-AIC(CO.ma3) # AIC = 1455.71
-AIC(CO.arma13) # AIC = 1457.24
-AIC(CO.auto) # AIC = 1452.36
+AIC(CO.ar1) 
+AIC(CO.ar2)
+AIC(CO.ar3)
+AIC(CO.ma1)
+AIC(CO.ma2)
+AIC(CO.ma3) 
+AIC(CO.arma12)
+AIC(CO.arma13)
+AIC(CO.arma23)
+AIC(CO.auto)
 ```
-The lowest AIC is the CO.ar1, which is what the auto.arima function produced as well. 
-Therefore the model we would choose is AR(1). 
+The lowest AIC is the CO.ar3, which is what the auto.arima function produced as well. 
+Therefore the model we would choose is AR(3). 
 
 We also used AIC and diagnostics to assess the models for N02. 
 ```{r}
-AIC(NO2.ar2) # AIC = 3820.68
-AIC(NO2.ma3) # AIC = 3786.07
-AIC(NO2.arma23) # AIC = 3786.98
-AIC(NO2.auto) # AIC = 3781.53
+AIC(NO2.ar1)
+AIC(NO2.ar2) 
+AIC(NO2.ar3)
+AIC(NO2.ma1)
+AIC(NO2.ma2)
+AIC(NO2.ma3) 
+AIC(NO2.arma12) 
+AIC(NO2.arma13)
+AIC(NO2.arma23)
+AIC(NO2.auto)
 ```
-NOT SURE BC auto arima is weird so double check this ???
+The lowest AIC is the NO2.arma(13), which is what the auto.arima function produced as well. 
+Therefore the model we would choose is ARMA(1,3). 
 
 # Part E: Diagnostics
 ```{r}
-tsdiag(CO.ar1, lag = 30)
+tsdiag(CO.ar3, lag = 30)
 ```
 The above graph shows that ... 
 
 ```{r}
-tsdiag(NO2.auto, lag = 30)
+tsdiag(NO2.arma13, lag = 30)
 ```
 The above graph shows that ... 
 
@@ -460,13 +473,13 @@ allResiduals <- data.frame(e.ts.CO, e.ts.NO2)
 colnames(allResiduals) <- c("CO","NO2")
 cor(allResiduals)
 ```
-Correlation between residuals of NO2 and CO is 0.663.
+Correlation between residuals of NO2 and CO is 0.58914.
 
 # Build VARMA model to CO and NO2 residuals
 ```{r, include=FALSE}
-AICmatrix <- matrix(NA, 4, 5)
-for(p in 1:4){
-  for(q in 0:4){
+AICmatrix <- matrix(NA, 3, 4)
+for(p in 1:3){
+  for(q in 0:3){
     varma.model <- VARMACpp(allResiduals, p=p, q=q, include.mean=F)
     AICmatrix[p,q+1] <- varma.model$aic
   }
@@ -514,8 +527,8 @@ COmean <- predict(CO.trend.seasonal, newdata = next.year)
 NO2mean <- predict(NO2.trend.seasonal, newdata = next.year)
 
 set.seed(14)
-T.simUCO = arima.sim(CO.ar1$model,365)
-T.simUNO2 = arima.sim(NO2.ma3$model,365)
+T.simUCO = arima.sim(CO.ar3$model,365)
+T.simUNO2 = arima.sim(NO2.arma13$model,365)
 ```
 ```{r}
 {plot(COmean + T.simUCO)
