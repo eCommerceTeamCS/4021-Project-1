@@ -226,8 +226,9 @@ acf(e.ts.CO, main="ACF of Residuals\nfrom CO.trend.seasonal")
 pacf(e.ts.CO,main="PACF of Residuals\nfrom CO.trend.seasonal")
 par(mfrow=c(1,1))
 ```
-The ACF plot for the residuals of the CO.trend.seasonal shows a cutoff at lag 3, so we will set q=3.
+The ACF plot for the residuals of the CO.trend.seasonal shows sinusoidal decay. It also seems to show a cutoff at lag 3, so we will set q=3 for future use. 
 The PACF plot for the residuals of the CO.trend.seasonal shows a cutoff at lag 1, so we will set p=1.
+The above statements point to the model being AR(1), but we will calculate AIC values to assess several model choices. 
 
 # Do we need to consider a first order difference of our residuals?
 ```{r}
@@ -255,6 +256,7 @@ acf(diff(e.ts.NO2), main="Diff ACF of Residuals\nfrom NO2.trend.seasonal")
 pacf(diff(e.ts.NO2),main="Diff PACF of Residuals\nfrom NO2.trend.seasonal")
 par(mfrow=c(1,1))
 ```
+Both plots show sinusoidal decay, which points to using an ARMA model. 
 Yes, we should consider a first order difference of our residuals for NO2 because the ACF of the original has positive autocorrelations out to a high number of lags (10). By taking the first order difference of the residuals, we reduce this number of lags to 3. Thus, the value of d is 1, to represent first order differentation.
 
 # Modeling e.ts.CO 
@@ -342,15 +344,21 @@ NOT SURE BC auto arima is weird so double check this ???
 ```{r}
 tsdiag(CO.ar1, lag = 30)
 ```
+The above graph shows that ... 
+
+```{r}
+tsdiag(NO2.auto, lag = 30)
+```
+The above graph shows that ... 
 
 
 ### Part 2: Building Multivariate Time Series Models
 
 ## Part A: Seasonality
-same as part 1a
+Same as part 1a
 
 ## Part B: Trends
-same as part 1b
+Same as part 1b
 
 ## Part C: Auto-Regressive and Moving Average
 ```{r}
@@ -358,6 +366,8 @@ allResiduals <- data.frame(e.ts.CO, e.ts.NO2)
 colnames(allResiduals) <- c("CO","NO2")
 cor(allResiduals)
 ```
+Correlation between residuals of NO2 and CO is 0.663.
+
 # Build VARMA model to CO and NO2 residuals
 ```{r, include=FALSE}
 AICmatrix <- matrix(NA, 4, 5)
@@ -368,26 +378,32 @@ for(p in 1:4){
   }
 }
 ```
-# Find which model has the lowest AIC
+## Part D: Assessment of Models
+
+We will analyze the AICmatrix to find which model has the lowest AIC. 
 ```{r}
 AICmatrix
 ```
-# Build the model with the lowest AIC
+According to the AICmatrix, the model with p=2 and q=3 has the lowest AIC, this we should use these values to build our model. 
+The AIC for p=2 and q=3 is 7.227414. 
+
+** Shld we include the next lowest model and then do some graphical diagnositcs too? 
+** Also in the assignment they said " Please mask the output of tested models except for those whose diagnostics you discuss using ‘include=FALSE’ as an argument in the relevant chunk. " so need to figure out what that means
+
+Now we will build the model with the lowest AIC. 
 ```{r}
 varma.model <- VARMACpp(allResiduals, p=2, q=3, include.mean=F)
 varma.model
-MTSdiag(varma.model)
-```
-
-## Part D: Assessment of Models
-```{r}
-
 ```
 
 ## Part E: Diagnostics
 ```{r}
-
+MTSdiag(varma.model)
 ```
+The significance plot of CCM shows that ...
+The plot of p-values for Ljung-Box statistics shows that ...
+The residual plot for CO shows that ...
+The residual plot for NO2 shows that ... 
 
 
 ### Part 3: Simulating from Univariate and Multivariate Time Series Models
@@ -395,13 +411,20 @@ MTSdiag(varma.model)
 set.seed(14)
 T.simUCO = arima.sim(CO.ar1$model,365)
 T.simUNO2 = arima.sim(NO2.ma3$model,365)
-
+```
+```{r}
 {plot(T.simUCO)
 lines(e.ts.CO[1:365],col="blue")}
+```
+Above is a plot of ? which shows ___
 
+``` {r}
 {plot(T.simUNO2)
 lines(e.ts.NO2[1:365],col="green")}
+```
+Above is a plot of ? which shows ___
 
+```{r}
 T.sim = VARMAsim(365,phi=varma.model$Phi,theta=varma.model$Theta,sigma=varma.model$Sigma)
 ```
 ## Part A: Ability to reproduce appearance
@@ -410,6 +433,8 @@ T.sim = VARMAsim(365,phi=varma.model$Phi,theta=varma.model$Theta,sigma=varma.mod
 cor(T.sim$series)
 cor(allResiduals)
 ```
+Interpret these results .. 
+
 # Plot observations and simulations
 
 
