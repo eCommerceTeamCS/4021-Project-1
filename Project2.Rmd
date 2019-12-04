@@ -385,16 +385,21 @@ We will analyze the AICmatrix to find which model has the lowest AIC.
 AICmatrix
 ```
 According to the AICmatrix, the model with p=2 and q=3 has the lowest AIC, this we should use these values to build our model. 
-The AIC for p=2 and q=3 is 7.227414. 
-
-** Shld we include the next lowest model and then do some graphical diagnositcs too? 
-** Also in the assignment they said " Please mask the output of tested models except for those whose diagnostics you discuss using ‘include=FALSE’ as an argument in the relevant chunk. " so need to figure out what that means
-
-Now we will build the model with the lowest AIC. 
+The AIC for p=2 and q=3 is 7.227414. The next best model is p=2 and q=2, with an AIC of 7.249367. 
+We will build these 2 models and compare them using diagnostics.  
 ```{r}
 varma.model <- VARMACpp(allResiduals, p=2, q=3, include.mean=F)
 varma.model
+MTSdiag(varma.model)
+
+varma.model2 <- VARMACpp(allResiduals, p=2, q=2, include.mean=F)
+varma.model2
+MTSdiag(varma.model2)
 ```
+According to the above diagnostics ____ 
+
+** Also in the assignment they said " Please mask the output of tested models except for those whose diagnostics you discuss using ‘include=FALSE’ as an argument in the relevant chunk. " so need to figure out what that means ??
+
 
 ## Part E: Diagnostics
 ```{r}
