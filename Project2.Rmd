@@ -191,6 +191,15 @@ acf(e.ts.CO, main="ACF of Residuals\nfrom CO.trend.seasonal")
 pacf(e.ts.CO,main="PACF of Residuals\nfrom CO.trend.seasonal")
 par(mfrow=c(1,1))
 ```
+# Do we need to consider a first order difference of our residuals?
+```{r}
+par(mfrow=c(1,2))
+acf(diff(e.ts.CO), main="Diff ACF of Residuals\nfrom CO.trend.seasonal")
+pacf(diff(e.ts.CO),main="Diff PACF of Residuals\nfrom CO.trend.seasonal")
+par(mfrow=c(1,1))
+```
+No, we do not need to differentiate the residuals of the CO.trend.seasonal model because the ACF shows decay with a lag of 3 and the differentiated ACF does not improve this. Thus, the value of d is 0.
+
 # Plot the autocorrelation (ACF) and partial autocorrelation (PACF) of the residuals of NO2.trend.seasonal
 ```{r}
 par(mfrow=c(1,2))
@@ -201,10 +210,12 @@ par(mfrow=c(1,1))
 # Do we need to consider a first order difference of our residuals?
 ```{r}
 par(mfrow=c(1,2))
-acf(diff(e.ts.CO), main="Diff ACF of Residuals\nfrom CO.trend.seasonal")
-pacf(diff(e.ts.CO),main="Diff PACF of Residuals\nfrom CO.trend.seasonal")
+acf(diff(e.ts.NO2), main="Diff ACF of Residuals\nfrom NO2.trend.seasonal")
+pacf(diff(e.ts.NO2),main="Diff PACF of Residuals\nfrom NO2.trend.seasonal")
 par(mfrow=c(1,1))
 ```
+Yes, we should consider a first order difference of our residuals here because the ACF of the original has positive autocorrelations out to a high number of lags (10). By taking the first order difference of the residuals, we reduce this number of lags to 3. Thus, the value of d is 1, to represent first order differentation.
+
 # Choose p and q terms for e.ts.CO based on the acf and pacf 
 
 # ar(1) p=1
@@ -230,20 +241,20 @@ summary(CO.auto)
 
 # Choose p and q terms for e.ts.NO2 based on the acf and pacf 
 
-# ar(1) p=1
+# ar(2) p=2
 ```{r}
-NO2.ar1 <- arima(e.ts.NO2, order=c(1,0,0), include.mean=FALSE)
+NO2.ar1 <- arima(e.ts.NO2, order=c(2,1,0), include.mean=FALSE)
 summary(NO2.ar1)
 ```
-# ma(10) p=0, q=10
+# ma(3) p=0, q=3
 ```{r}
-NO2.ma10 <- arima(e.ts.NO2, order=c(0,0,10), include.mean=FALSE)
+NO2.ma10 <- arima(e.ts.NO2, order=c(0,1,3), include.mean=FALSE)
 summary(NO2.ma10)
 ```
-# arma(1,10) p=1, q=10
+# arma(2,3) p=2, q=3
 ```{r}
-NO2.arma110 <- arima(e.ts.NO2, order=c(1,0,10), include.mean=FALSE)
-summary(NO2.arma110)
+NO2.arma23 <- arima(e.ts.NO2, order=c(2,1,3), include.mean=FALSE)
+summary(NO2.arma23)
 ```
 # use the auto.arima function on e.ts.NO@
 
@@ -251,13 +262,16 @@ summary(NO2.arma110)
 NO2.auto <- auto.arima(e.ts.NO2,approximation=FALSE)
 summary(NO2.auto)
 ```
-
+Is the auto.arima function always the right model to go with? how does it incorporate differencing?
 
 # Part D: Assessment of Models
+We used AIC and diagnostics to assess the models ....
 ```{r}
 AIC(CO.ar1)
+AIC(CO.ma3)
+AIC(CO.arma13)
 ```
-We used AIC and diagnostics to assess the models ....
+The lowest AIC is the CO.ar1, which is what the auto.arima function produced as well.
 
 # Part E: Diagnostics
 ```{r}
@@ -313,13 +327,16 @@ MTSdiag(varma.model)
 
 ### Part 3: Simulating from Univariate and Multivariate Time Series Models
 ```{r}
-
+T.sim = VARMAsim(365,phi=varma.model$Phi,theta=varma.model$Theta,sigma=varma.model$Sigma)
 ```
-
 ## Part A: Ability to reproduce appearance
+# Compare correlation of simulated residuals to actual residuals
 ```{r}
-
+cor(T.sim$series)
+cor(allResiduals)
 ```
+# Plot observations and simulations
+
 
 ## Part B: Ability to reproduce observed trends
 ```{r}
