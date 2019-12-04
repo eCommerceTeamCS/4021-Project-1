@@ -147,7 +147,7 @@ abline(NO2.trend, col = "red")}
 # This supports the results of our statistical test. 
 # The adjusted R^2 for the model NO2.trend is 0.3031. 
 ```
-# Model diagnostics for CO.trend
+# Model diagnostics for CO.trend --> talk about why we don't do a log transform here!!
 ```{r}
 par(mfrow=c(2,2))
 plot(CO.trend, labels.id = NULL)
@@ -494,14 +494,14 @@ AICmatrix
 According to the AICmatrix, the model with p=2 and q=3 has the lowest AIC, this we should use these values to build our model. 
 The AIC for p=2 and q=3 is 7.227414. The next best model is p=2 and q=2, with an AIC of 7.249367. 
 We will build these 2 models and compare them using diagnostics.  
-```{r}
+```{r setup, include = FALSE}
 varma.model <- VARMACpp(allResiduals, p=2, q=3, include.mean=F)
 varma.model
 MTSdiag(varma.model)
 
 varma.model2 <- VARMACpp(allResiduals, p=2, q=2, include.mean=F)
-varma.model2
-MTSdiag(varma.model2)
+#varma.model2
+#MTSdiag(varma.model2)
 ```
 According to the above diagnostics ____ 
 
