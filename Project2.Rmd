@@ -293,36 +293,50 @@ Now we will try out some models for e.ts.CO using p=2 and q=3.
 
 ar(2) p=2
 ```{r}
-NO2.ar1 <- arima(e.ts.NO2, order=c(2,1,0), include.mean=FALSE)
-summary(NO2.ar1)
+NO2.ar2 <- arima(e.ts.NO2, order=c(2,1,0), include.mean=FALSE)
+summary(NO2.ar2)
+# AIC = 3820.68
 ```
 ma(3) p=0, q=3
 ```{r}
 NO2.ma3 <- arima(e.ts.NO2, order=c(0,1,3), include.mean=FALSE)
 summary(NO2.ma3)
-# AIC = 3820.68
+# AIC = 3786.07
 ```
 arma(2,3) p=2, q=3
 ```{r}
 NO2.arma23 <- arima(e.ts.NO2, order=c(2,1,3), include.mean=FALSE)
 summary(NO2.arma23)
+# AIC = 3786.98
 ```
-# use the auto.arima function on e.ts.NO@
-
+As a final step, we will use the auto.arima function on e.ts.NO2. 
 ```{r}
 NO2.auto <- auto.arima(e.ts.NO2,approximation=FALSE)
 summary(NO2.auto)
+# AIC = 3781.53
 ```
 Is the auto.arima function always the right model to go with? how does it incorporate differencing?
+Auto.arima said ARIMA(2,0,1)? What does this mean
 
 # Part D: Assessment of Models
-We used AIC and diagnostics to assess the models ....
+We used AIC and diagnostics to assess the models for CO. 
 ```{r}
-AIC(CO.ar1)
-AIC(CO.ma3)
-AIC(CO.arma13)
+AIC(CO.ar1) # AIC = 1452.36
+AIC(CO.ma3) # AIC = 1455.71
+AIC(CO.arma13) # AIC = 1457.24
+AIC(CO.auto) # AIC = 1452.36
 ```
-The lowest AIC is the CO.ar1, which is what the auto.arima function produced as well.
+The lowest AIC is the CO.ar1, which is what the auto.arima function produced as well. 
+Therefore the model we would choose is AR(1). 
+
+We also used AIC and diagnostics to assess the models for N02. 
+```{r}
+AIC(NO2.ar2) # AIC = 3820.68
+AIC(N02.ma3) # AIC = 3786.07
+AIC(N02.arma23) # AIC = 3786.98
+AIC(N02.auto) # AIC = 3781.53
+```
+NOT SURE BC auto arima is weird so double check this ???
 
 # Part E: Diagnostics
 ```{r}
