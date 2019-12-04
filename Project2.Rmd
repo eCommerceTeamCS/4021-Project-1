@@ -135,6 +135,7 @@ summary(NO2.trend)
 abline(CO.trend, col = "red")}
 # As seen in the plot of the CO.trend model, we can see that there is a clear upward trend line, which 
 # supports the results of our statistical test. 
+# The adjusted R^2 for the model CO.trend is 0.02558. 
 ```
 
 # Plot NO2.trend model
@@ -144,43 +145,64 @@ abline(NO2.trend, col = "red")}
 # As seen in the plot of the NO2.trend model, we can see that there is a clear upward trend line.
 # From the naked eye, the slope seems more drastic than with the trend line from CO.trend model. 
 # This supports the results of our statistical test. 
+# The adjusted R^2 for the model NO2.trend is 0.3031. 
 ```
 # Model diagnostics for CO.trend
 ```{r}
 par(mfrow=c(2,2))
 plot(CO.trend, labels.id = NULL)
 par(mfrow=c(1,1))
-# For the residuals versus fitted plot, the mean is about zero and there seems to be constant variance.
-# There are a few outliers.
-# For the Q-Q plot, 
+# Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
+# Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. The Q-Q plot could be improved.
+# Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
+# Residuals versus leverage: No clear influential points with regards to Cook's distance. 
 ```
 # Model diagnostics for NO2.trend
 ```{r}
 par(mfrow=c(2,2))
 plot(NO2.trend, labels.id = NULL)
 par(mfrow=c(1,1))
+# Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance.
+# Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. As seen by the naked eye, the Q-Q plot for N02.trend is a little better than that of CO.trend.
+# Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
+# Residuals versus leverage: No clear influential points with regards to Cook's distance. 
 ```
-# add seasonality component to CO.trend
+# Add seasonality component to CO.trend
 ```{r}
+# Because the seasonality component was significant, we added a seasonality component to CO.trend. We decided to use a period of 365 because our intuition says there should be an annual cycle. 
 CO.trend.seasonal <- lm(CO.ts[time] ~ time + sin(2*pi*time/365) + cos(2*pi*time/365))
 summary(CO.trend.seasonal)
+# The p-value for this model is 2.449e-10.
+# The adjusted R^2 for the model CO.trend.seasonal is 0.1109. 
 ```
 # add seasonality component to NO2.trend
 ```{r}
+# Because the seasonality component was significant, we added a seasonality component to N02.trend. We decided to use a period of 365 because our intuition says there should be an annual cycle.
 NO2.trend.seasonal <- lm(NO2.ts[time] ~ time + sin(2*pi*time/365) + cos(2*pi*time/365))
 summary(NO2.trend.seasonal)
+# The p-value for this model is 2.2e-16. 
+# The adjusted R^2 for the model N02.trend.seasonal is 0.388 
 ```
 # Model diagnostics for CO.trend.seasonal
 ```{r}
 par(mfrow=c(2,2))
 plot(CO.trend.seasonal, labels.id = NULL)
 par(mfrow=c(1,1))
+# Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance. 
+# Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. 
+# Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. 
+# Residuals versus leverage: No clear influential points with regards to Cook's distance. 
+# The spread of points above and below the mean line in the residuals versus fitted plot and scale-location plots have improved from the CO.trend model. 
 ```
 # Model diagnostics for NO2.trend.seasonal
 ```{r}
 par(mfrow=c(2,2))
 plot(NO2.trend.seasonal, labels.id = NULL)
 par(mfrow=c(1,1))
+# Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance.
+# Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. The Q-Q plot could be improved a bit. 
+# Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
+# Residuals versus leverage: No clear influential points with regards to Cook's distance. 
 ```
 
 ## Part C: Auto-Regressive and Moving Average
