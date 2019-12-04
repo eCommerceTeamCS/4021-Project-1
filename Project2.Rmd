@@ -9,13 +9,13 @@ output:
 
 ```{r setup, include=FALSE}
 require("knitr")
-datadir <- "/Users/shaynecassidy/Desktop/4021/Data/AirQualityUCI"
-sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
+#datadir <- "/Users/shaynecassidy/Desktop/4021/Data/AirQualityUCI"
+#sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
 
 # sourcedir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
 # datadir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/AirQualityUCI"
-# sourcedir <- "C:/Users/student/SYS4021/RCode"
-# datadir <- "C:/Users/student/SYS4021/Data/AirQualityUCI/"
+sourcedir <- "C:/Users/student/SYS4021/RCode"
+datadir <- "C:/Users/student/SYS4021/Data/AirQualityUCI/"
 opts_knit$set(root.dir = sourcedir)
 library(forecast)
 library(mtsdi)
@@ -58,7 +58,7 @@ dailyAQ <- dailyAQ[1:(dim(dailyAQ)[1]-7),]
 ```
 
 
-## Part 1: Building Univariate Time Series Models
+### Part 1: Building Univariate Time Series Models
 ```{r}
 AQ.CO <- dailyAQ$CO.GT.
 #AQ.CO <- AQdata$CO.GT.
@@ -98,6 +98,21 @@ max.pg.NO2
 
 # What is the period? -->192
 1/max.pg.NO2
+
+# What are the periods of the next biggest peaks?
+# sort spectrum from largest to smallest and find index
+sorted.spec <- sort(pg.CO$spec, decreasing=T, index.return=T)
+names(sorted.spec)
+
+# corresponding periods
+sorted.omegas <- pg.NO2$freq[sorted.spec$ix]
+sorted.Ts <- 1/pg.NO2$freq[sorted.spec$ix]
+
+# look at first 20
+sorted.omegas[1:20]
+sorted.Ts[1:192]
+# evens around 7
+period<-7 
 ```
 
 # Part B: Trends
@@ -134,12 +149,12 @@ par(mfrow=c(1,1))
 ```
 # add seasonality component to CO.trend
 ```{r}
-CO.trend.seasonal <- lm(CO.ts ~ time + sin(2*pi*time/384) + cos(2*pi*time/384))
+CO.trend.seasonal <- lm(CO.ts[time] ~ time + sin(2*pi*time/365) + cos(2*pi*time/365))
 summary(CO.trend.seasonal)
 ```
 # add seasonality component to NO2.trend
 ```{r}
-NO2.trend.seasonal <- lm(NO2.ts ~ time + sin(2*pi*time/192) + cos(2*pi*time/192))
+NO2.trend.seasonal <- lm(NO2.ts[time] ~ time + sin(2*pi*time/365) + cos(2*pi*time/365))
 summary(NO2.trend.seasonal)
 ```
 # Model diagnostics for CO.trend.seasonal
@@ -190,106 +205,143 @@ acf(diff(e.ts.CO), main="Diff ACF of Residuals\nfrom CO.trend.seasonal")
 pacf(diff(e.ts.CO),main="Diff PACF of Residuals\nfrom CO.trend.seasonal")
 par(mfrow=c(1,1))
 ```
-# Let us choose p and q terms for e.ts.temp based on the acf and pacf 
-
-# Choose p and q terms for e.ts.temp based on the acf and pacf 
+# Choose p and q terms for e.ts.CO based on the acf and pacf 
 
 # ar(1) p=1
 ```{r}
-CO.ar1 <- arima(e.ts.CO, order=c(25,0,0), include.mean=FALSE)
+CO.ar1 <- arima(e.ts.CO, order=c(1,0,0), include.mean=FALSE)
 summary(CO.ar1)
-
 ```
-# ma(2) p=0, q=2
+# ma(3) p=0, q=3
 ```{r}
-CO.ma2 <- arima(e.ts.CO, order=c(0,0,25), include.mean=FALSE)
-summary(CO.ma2)
+CO.ma3 <- arima(e.ts.CO, order=c(0,0,3), include.mean=FALSE)
+summary(CO.ma3)
 ```
-# arma(1,2) p=1, q=2
+# arma(1,3) p=1, q=3
 ```{r}
-CO.arma12 <- arima(e.ts.CO, order=c(10,0,12), include.mean=FALSE)
-summary(CO.arma12)
+CO.arma13 <- arima(e.ts.CO, order=c(1,0,3), include.mean=FALSE)
+summary(CO.arma13)
 ```
-# Based on AIC, which one do you choose?
+# use the auto.arima function on e.ts.CO
 ```{r}
 CO.auto <- auto.arima(e.ts.CO,approximation=FALSE)
 summary(CO.auto)
 ```
 
+# Choose p and q terms for e.ts.NO2 based on the acf and pacf 
+
+# ar(1) p=1
+```{r}
+NO2.ar1 <- arima(e.ts.NO2, order=c(1,0,0), include.mean=FALSE)
+summary(NO2.ar1)
+```
+# ma(10) p=0, q=10
+```{r}
+NO2.ma10 <- arima(e.ts.NO2, order=c(0,0,10), include.mean=FALSE)
+summary(NO2.ma10)
+```
+# arma(1,10) p=1, q=10
+```{r}
+NO2.arma110 <- arima(e.ts.NO2, order=c(1,0,10), include.mean=FALSE)
+summary(NO2.arma110)
+```
+# use the auto.arima function on e.ts.NO@
+
+```{r}
+NO2.auto <- auto.arima(e.ts.NO2,approximation=FALSE)
+summary(NO2.auto)
+```
+
 
 # Part D: Assessment of Models
 ```{r}
-
+AIC(CO.ar1)
 ```
+We used AIC and diagnostics to assess the models ....
 
 # Part E: Diagnostics
 ```{r}
-
+tsdiag(CO.ar1, lag = 30)
 ```
 
 
-## Part 2: Building Multivariate Time Series Models
+### Part 2: Building Multivariate Time Series Models
+
+## Part A: Seasonality
+same as part 1a
+
+## Part B: Trends
+same as part 1b
+
+## Part C: Auto-Regressive and Moving Average
+```{r}
+allResiduals <- data.frame(e.ts.CO, e.ts.NO2)
+colnames(allResiduals) <- c("CO","NO2")
+cor(allResiduals)
+```
+# Build VARMA model to CO and NO2 residuals
+```{r, include=FALSE}
+AICmatrix <- matrix(NA, 4, 5)
+for(p in 1:4){
+  for(q in 0:4){
+    varma.model <- VARMACpp(allResiduals, p=p, q=q, include.mean=F)
+    AICmatrix[p,q+1] <- varma.model$aic
+  }
+}
+```
+# Find which model has the lowest AIC
+```{r}
+AICmatrix
+```
+# Build the model with the lowest AIC
+```{r}
+varma.model <- VARMACpp(allResiduals, p=2, q=3, include.mean=F)
+varma.model
+MTSdiag(varma.model)
+```
+
+## Part D: Assessment of Models
 ```{r}
 
 ```
 
-# Part A: Seasonality
-```{r}
-
-```
-
-# Part B: Trends
-```{r}
-
-```
-
-# Part C: Auto-Regressive and Moving Average
-```{r}
-
-```
-
-# Part D: Assessment of Models
-```{r}
-
-```
-
-# Part E: Diagnostics
+## Part E: Diagnostics
 ```{r}
 
 ```
 
 
-## Part 3: Simulating from Univariate and Multivariate Time Series Models
+### Part 3: Simulating from Univariate and Multivariate Time Series Models
 ```{r}
 
 ```
 
-# Part A: Ability to reproduce appearance
+## Part A: Ability to reproduce appearance
 ```{r}
 
 ```
 
-# Part B: Ability to reproduce observed trends
+## Part B: Ability to reproduce observed trends
 ```{r}
 
 ```
 
-# Part C: Ability to reproduce seasonality
+## Part C: Ability to reproduce seasonality
 ```{r}
 
 ```
 
-# Part D: Ability to reproduce observed mean and variance
+## Part D: Ability to reproduce observed mean and variance
 ```{r}
 
 ```
 
-# Part E: Ability to reproduce auto-correlation
+## Part E: Ability to reproduce auto-correlation
 ```{r}
 
 ```
 
-# Part F: Ability to reproduce observed cross-correlation
+## Part F: Ability to reproduce observed cross-correlation
 ```{r}
 
 ```
