@@ -76,29 +76,13 @@ plot(NO2.ts)
 ```{r}
 acf(CO.ts)
 acf(NO2.ts)
-# both show sinusoidal exponential decay --> AR model
 
 pg.CO <- spec.pgram(CO.ts,spans=9,demean=T,log='no')
-# spikes in periodagram at repeated frequencies --> indicates seasonality present
-max.pg.CO<-pg.CO$freq[which(pg.CO$spec==max(pg.CO$spec))]
-
-# Where is the peak? -->0.002604167
-max.pg.CO
-
-# What is the period? -->384
-1/max.pg.CO
-```
-```{r}
 pg.NO2 <- spec.pgram(NO2.ts,spans=9,demean=T,log='no')
-# spikes in periodagram at repeated frequencies --> indicates seasonality present
-max.pg.NO2<-pg.CO$freq[which(pg.NO2$spec==max(pg.NO2$spec))]
+```
+The spikes in both periodagrams at repeated frequencies indicates seasonality present.
 
-# Where is the peak? -->0.00520833
-max.pg.NO2
-
-# What is the period? -->192
-1/max.pg.NO2
-
+```{r}
 # What are the periods of the next biggest peaks?
 # sort spectrum from largest to smallest and find index
 sorted.spec <- sort(pg.CO$spec, decreasing=T, index.return=T)
@@ -116,73 +100,83 @@ period<-7
 ```
 
 # Part B: Trends
+
+Build a new model, CO.trend which predicts CO.ts based on the time variable
 ```{r}
-# Build a new model, CO.trend which predicts CO.ts based on the time variable
 time<-c(1:(length(CO.ts)))
 CO.trend<-lm(CO.ts ~ time)
 NO2.trend<-lm(NO2.ts ~ time)
 
 summary(CO.trend)
 summary(NO2.trend)
-
-# Here we built two new models, CO.trend and No2.trend, that both model the trend components. 
-# For CO.trend, the p-value is 0.00097, and for NO2.trend, the p-value is <2.2e-16. Therefore, the trend 
-# component is significant in both models and must be considered.
 ```
+Here we built two new models, CO.trend and No2.trend, that both model the trend components. 
+For CO.trend, the p-value is 0.00097, and for NO2.trend, the p-value is <2.2e-16. Therefore, the trend 
+component is significant in both models and must be considered.
+
 # Plot CO.trend model
 ```{r}
 {plot(time, CO.ts, type = "l")
 abline(CO.trend, col = "red")}
-# As seen in the plot of the CO.trend model, we can see that there is a clear upward trend line, which 
-# supports the results of our statistical test. 
-# The adjusted R^2 for the model CO.trend is 0.02558. 
 ```
+As seen in the plot of the CO.trend model, we can see that there is a clear upward trend line, which 
+supports the results of our statistical test. 
+The adjusted R^2 for the model CO.trend is 0.02558. 
 
 # Plot NO2.trend model
 ```{r}
 {plot(time, NO2.ts, type = "l")
 abline(NO2.trend, col = "red")}
-# As seen in the plot of the NO2.trend model, we can see that there is a clear upward trend line.
-# From the naked eye, the slope seems more drastic than with the trend line from CO.trend model. 
-# This supports the results of our statistical test. 
-# The adjusted R^2 for the model NO2.trend is 0.3031. 
 ```
+As seen in the plot of the NO2.trend model, we can see that there is a clear upward trend line.
+From the naked eye, the slope seems more drastic than with the trend line from CO.trend model. 
+This supports the results of our statistical test. 
+The adjusted R^2 for the model NO2.trend is 0.3031.
+
 # Model diagnostics for CO.trend --> talk about why we don't do a log transform here!!
 ```{r}
 par(mfrow=c(2,2))
 plot(CO.trend, labels.id = NULL)
 par(mfrow=c(1,1))
-# Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
-# Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. The Q-Q plot could be improved.
-# Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
-# Residuals versus leverage: No clear influential points with regards to Cook's distance. 
 ```
+Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
+Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. The Q-Q plot could be improved.
+Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
+Residuals versus leverage: No clear influential points with regards to Cook's distance.
+
+Based on these diagnostics plots, it does not appear that we need to perform any type of transformation (i.e. Log transform).
+
 # Model diagnostics for NO2.trend
 ```{r}
 par(mfrow=c(2,2))
 plot(NO2.trend, labels.id = NULL)
 par(mfrow=c(1,1))
-# Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance.
-# Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. As seen by the naked eye, the Q-Q plot for N02.trend is a little better than that of CO.trend.
-# Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
-# Residuals versus leverage: No clear influential points with regards to Cook's distance. 
 ```
+Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance.
+Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. As seen by the naked eye, the Q-Q plot for N02.trend is a little better than that of CO.trend.
+Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
+Residuals versus leverage: No clear influential points with regards to Cook's distance.
+
+Based on these diagnostics plots, it does not appear that we need to perform any type of transformation (i.e. Log transform).
+
 # Add seasonality component to CO.trend
+Because the seasonality component was significant, we added a seasonality component to CO.trend. We decided to use a period of 7 because the peak frequency of the periodogram is about 0.14, and 1/0.14 = 7. This implies a weekly period. 
 ```{r}
-# Because the seasonality component was significant, we added a seasonality component to CO.trend. We decided to use a period of 365 because our intuition says there should be an annual cycle. 
 CO.trend.seasonal <- lm(CO.ts[time] ~ time + sin(2*pi*time/7) + cos(2*pi*time/7))
 summary(CO.trend.seasonal)
-# The p-value for this model is 2.449e-10.
-# The adjusted R^2 for the model CO.trend.seasonal is 0.1109. 
 ```
+The p-value for this model is 5.027e-13.
+The adjusted R^2 for the model CO.trend.seasonal is 0.1399. 
+
 # add seasonality component to NO2.trend
+Because the seasonality component was significant, we added a seasonality component to N02.trend. We decided to use a period of 7 because the peak frequency of the periodogram is about 0.14, and 1/0.14 = 7. This implies a weekly period. 
 ```{r}
-# Because the seasonality component was significant, we added a seasonality component to N02.trend. We decided to use a period of 365 because our intuition says there should be an annual cycle.
 NO2.trend.seasonal <- lm(NO2.ts[time] ~ time + sin(2*pi*time/7) + cos(2*pi*time/7))
 summary(NO2.trend.seasonal)
-# The p-value for this model is 2.2e-16. 
-# The adjusted R^2 for the model N02.trend.seasonal is 0.388 
 ```
+The p-value for this model is 2.2e-16. 
+The adjusted R^2 for the model N02.trend.seasonal is 0.3525 
+
 # Model diagnostics for CO.trend.seasonal
 ```{r}
 par(mfrow=c(2,2))
@@ -447,17 +441,40 @@ AIC(NO2.auto)
 The lowest AIC is the NO2.arma(13), which is what the auto.arima function produced as well. 
 Therefore the model we would choose is ARMA(1,3). 
 
-# Part E: Diagnostics
+Now we will consider diagnostics of the best CO model and second best CO model according to their AIC.
+```{r}
+tsdiag(CO.arma13, lag = 30)
+```
+The standardized residuals graph shows that there is noise in the ARMA(1,3) model of the residuals.
+The ACF of residuals shows no significant lags in the ARMA(1,3) model.
+Finally, the Ljung-Box statistic shows that at lag 10, the pvalue is very, very close to 0. While it is still adequate for lags 1-9, we could do better.
+
 ```{r}
 tsdiag(CO.ar3, lag = 30)
 ```
-The above graph shows that ... 
+The standardized residuals graph shows that there is noise in the AR(3) model of the residuals.
+The ACF of residuals shows no significant lags in the AR(3) model.
+Finally, the Ljung-Box statistic shows that the p-values do not touch 0, and is at adequate at all the lags.
+All of these attributes from the diagnotics plots indicate a valid model.
 
+Now we will consider diagnostics of the best NO2 model and second best NO2 model according to their AIC.
+```{r}
+tsdiag(NO2.arma23, lag = 30)
+```
+The standardized residuals graph shows that there is noise in the ARMA(2,3) model of the residuals.
+The ACF of residuals shows no significant lags in the ARMA(2,3) model.
+Finally, the Ljung-Box statistic shows that the p-values do not touch 0, and is at adequate at all the lags.
+All of these attributes from the diagnotics plots indicate a valid model. Now, let's look at the model with the best AIC, ARMA(1,3).
 ```{r}
 tsdiag(NO2.arma13, lag = 30)
 ```
-The above graph shows that ... 
+The standardized residuals graph shows that there is noise in the ARMA(1,3) model of the residuals.
+The ACF of residuals shows no significant lags in the ARMA(1,3) model.
+Finally, the Ljung-Box statistic shows that the p-values do not touch 0, and is at adequate at all the lags.
+All of these attributes from the diagnotics plots indicate a valid model. Because this model also had the lowest AIC, we will use it moving forward.
 
+# Part E: Diagnostics
+Regarding the diagnostics of the models we have chosen, there does not appear to be any concern that would warrant a transformation, such as a log transform. 
 
 ### Part 2: Building Multivariate Time Series Models
 
@@ -491,32 +508,33 @@ We will analyze the AICmatrix to find which model has the lowest AIC.
 ```{r}
 AICmatrix
 ```
-According to the AICmatrix, the model with p=2 and q=3 has the lowest AIC, this we should use these values to build our model. 
-The AIC for p=2 and q=3 is 7.227414. The next best model is p=2 and q=2, with an AIC of 7.249367. 
+According to the AICmatrix, the model with p=2 and q=2 has the lowest AIC, this we should use these values to build our model. 
+The AIC for p=2 and q=2 is 7.16333. The next best model is p=3 and q=3, with an AIC of 7.1883 . 
 We will build these 2 models and compare them using diagnostics.  
 ```{r setup, include = FALSE}
-varma.model <- VARMACpp(allResiduals, p=2, q=3, include.mean=F)
+varma.model2 <- VARMACpp(allResiduals, p=3, q=3, include.mean=F)
+varma.model2
+MTSdiag(varma.model2)
+```
+The CCF plots shows the correlations are all within the dashed line, meaning that the correlations are not statistically different from 0.
+The significance plot of CCM shows a few lags that are below the dashed line. While this is not too problematic, we can do better.
+The plot of p-values for Ljung-Box statistics shows that the model is adequate until around lag 12.
+The residual plot for CO and NO2 show noise, *yay!* 
+
+```{r}
+varma.model <- VARMACpp(allResiduals, p=2, q=2, include.mean=F)
 varma.model
 MTSdiag(varma.model)
-
-varma.model2 <- VARMACpp(allResiduals, p=2, q=2, include.mean=F)
-#varma.model2
-#MTSdiag(varma.model2)
 ```
-According to the above diagnostics ____ 
+The CCF plots shows the correlations are all within the dashed line, meaning that the correlations are not statistically different from 0.
+The significance plot of CCM shows a few lags that are below the dashed line. While this is not too problematic, we can do better.
+The plot of p-values for Ljung-Box statistics shows that the model is adequate until around lag 11.
+The residual plot for CO and NO2 show noise, *yay again!*
 
-** Also in the assignment they said " Please mask the output of tested models except for those whose diagnostics you discuss using ‘include=FALSE’ as an argument in the relevant chunk. " so need to figure out what that means ??
-
+After investigating the AIC values and the diagnostic plots of the two comparable VARMA models, we have decided to use VARMA(2,2) due to its lowest AIC value and acceptable diagnostic plots. 
 
 ## Part E: Diagnostics
-```{r}
-MTSdiag(varma.model)
-```
-The significance plot of CCM shows that ...
-The plot of p-values for Ljung-Box statistics shows that ...
-The residual plot for CO shows that ...
-The residual plot for NO2 shows that ... 
-
+While we considered the diagnostics to be acceptable, they could be better. For the p-values for Ljung-Box statistic plot, it would be better if there were more adequate lags (i.e. p-values do not become significant until future lags). In the significance plot of CCM, there were a few points below the dashed line. However, these observations do not pose any major concerns for the remainder of our analysis.
 
 ### Part 3: Simulating from Univariate and Multivariate Time Series Models
 ```{r}
@@ -526,57 +544,200 @@ next.year <- data.frame(time = next.year.time)
 COmean <- predict(CO.trend.seasonal, newdata = next.year)
 NO2mean <- predict(NO2.trend.seasonal, newdata = next.year)
 
-set.seed(14)
+set.seed(8)
 T.simUCO = arima.sim(CO.ar3$model,365)
 T.simUNO2 = arima.sim(NO2.arma13$model,365)
 ```
+
+```{r}
+T.simM = VARMAsim(365,phi=varma.model$Phi,theta=varma.model$Theta,sigma=varma.model$Sigma)
+```
+## Part A: Ability to reproduce appearance
+Univariate: CO 
 ```{r}
 {plot(COmean + T.simUCO)
 lines(dailyAQ$CO.GT.[1:365] + allResiduals$CO[1:365],col="blue")}
 ```
 Above is a plot of ? which shows ___
 
+Univariate: NO2
 ``` {r}
-{plot(T.simUNO2)
-lines(e.ts.NO2[1:365],col="green")}
+{plot(NO2mean + T.simUNO2)
+lines(dailyAQ$NO2.GT.[1:365] + allResiduals$NO2[1:365],col="green")}
+plot(dailyAQ$NO2.GT.[1:365] + allResiduals$NO2[1:365],col="green")
+plot(NO2mean + T.simUNO2)
+plot(NO2mean)
+plot(T.simUNO2)
+```
+
+Multivariate: CO
+```{r}
+{plot(COmean + T.simM$series[,1], type='l')
+lines(dailyAQ$CO.GT.[1:365] + allResiduals$CO[1:365],col="blue")}
 ```
 Above is a plot of ? which shows ___
 
+Multivariate: NO2
 ```{r}
-T.sim = VARMAsim(365,phi=varma.model$Phi,theta=varma.model$Theta,sigma=varma.model$Sigma)
+{plot(NO2mean + T.simM$series[,2], type='l')
+lines(dailyAQ$NO2.GT.[1:365] + allResiduals$NO2[1:365],col="blue")}
 ```
-## Part A: Ability to reproduce appearance
-# Compare correlation of simulated residuals to actual residuals
-```{r}
-cor(T.sim$series)
-cor(allResiduals)
-```
-Interpret these results .. 
-
-# Plot observations and simulations
-
 
 ## Part B: Ability to reproduce observed trends
-```{r}
 
+Univariate: CO
+```{r}
+COsim<-COmean+T.simUCO
+CO.trend.seasonal.sim <- lm(COsim[next.year.time] ~ next.year.time + sin(2*pi*next.year.time/7) + cos(2*pi*next.year.time/7))
+summary(CO.trend.seasonal)
+summary(CO.trend.seasonal.sim)
 ```
+The coefficient estimates for time and the seasonality components are very similar to each other for each respective model. This means means that using our simulated data, we were able to reproduce the observed trends of each time series.
+
+Univariate: NO2
+```{r}
+NO2sim<-NO2mean+T.simUNO2
+NO2.trend.seasonal.sim <- lm(NO2sim[next.year.time] ~ next.year.time + sin(2*pi*next.year.time/7) + cos(2*pi*next.year.time/7))
+summary(NO2.trend.seasonal)
+summary(NO2.trend.seasonal.sim)
+```
+The coefficient estimates for time and the seasonality components are very similar to each other for each respective model. This means means that using our simulated data, we were able to reproduce the observed trends of each time series.
+
+Multivariate: CO
+```{r}
+MCOsim<-COmean+T.simM$series[,1]
+MCO.trend.seasonal.sim <- lm(MCOsim[next.year.time] ~ next.year.time + sin(2*pi*next.year.time/7) + cos(2*pi*next.year.time/7))
+summary(CO.trend.seasonal)
+summary(MCO.trend.seasonal.sim)
+```
+The coefficient estimates for time and the seasonality components are fairly similar to each other for each respective model. The seasonality coefficients are slightly different, but still close to each other. This means that using our simulated data, we were able to reproduce the observed trends of each time series.
+
+Multivariate: NO2
+```{r}
+MNO2sim<-NO2mean+T.simM$series[,2]
+MNO2.trend.seasonal.sim <- lm(MNO2sim[next.year.time] ~ next.year.time + sin(2*pi*next.year.time/7) + cos(2*pi*next.year.time/7))
+summary(NO2.trend.seasonal)
+summary(MNO2.trend.seasonal.sim)
+```
+The coefficient estimates for time and the seasonality components are fairly similar to each other for each respective model. The intercept (107.88 vs 114.92) and seasonality coefficients are slightly different, but still close to each other. This means that using our simulated data, we were able to reproduce the observed trends of each time series fairly well.
 
 ## Part C: Ability to reproduce seasonality
-```{r}
 
+Univariate: CO
+```{r}
+pg.COsim <- spec.pgram(COsim,spans=9,demean=T,log='no')
 ```
+Univariate: NO2
+```{r}
+pg.NO2sim <- spec.pgram(NO2sim,spans=9,demean=T,log='no')
+```
+this is weird, ask about in office hours
+
+Multivariate: CO
+```{r}
+pg.MCOsim <- spec.pgram(MCOsim,spans=9,demean=T,log='no')
+```
+Multivariate: CO
+```{r}
+pg.MNO2sim <- spec.pgram(MNO2sim,spans=9,demean=T,log='no')
+```
+
+All of the above simulated periodograms for univariate and multivariate models all show a peak frequency at around 0.14, similar to the observed periodograms. This means we were able to accurately reproduce seasonality of each time series.
 
 ## Part D: Ability to reproduce observed mean and variance
-```{r}
 
+Univariate: CO
+```{r}
+mean(dailyAQ$CO.GT.)
+mean(COsim)
+var(dailyAQ$CO.GT.)
+var(COsim)
 ```
+The means are very close to each other (4.365 vs. 4.278), which indicates our model reproduces the observed mean well. However, the variances are slightly different (3.623 vs 1.4479). This coincides with the fact that our simulated values were all slightly lower than each of the observed value.
+
+Univariate: NO2
+```{r}
+mean(dailyAQ$NO2.GT.)
+mean(NO2sim)
+var(dailyAQ$NO2.GT.)
+var(NO2sim)
+```
+The means are very close to each other (164.5335 vs. 162.2001), which indicates our model reproduces the observed mean well. However, the variances are rather different (2657.72 vs 880.8054). ??????????
+
+Multivariate: CO
+```{r}
+mean(dailyAQ$CO.GT.)
+mean(MCOsim)
+var(dailyAQ$CO.GT.)
+var(MCOsim)
+```
+The means are very close to each other (4.365 vs. 4.3988), which indicates our multivariate model reproduces the observed mean for CO well. The variances are also similar (3.623 vs 2.847), indicating that our multivariate model also reproduces the observed variance CO well.
+
+Multivariate: NO2
+```{r}
+mean(dailyAQ$NO2.GT.)
+mean(MNO2sim)
+var(dailyAQ$NO2.GT.)
+var(MNO2sim)
+```
+The means are very close to each other (164.5335 vs. 160.9884), which indicates our multivariate model reproduces the observed mean for NO2 well. The variances are also fairly similar (2657.722 vs 2056.203), indicating that our multivariate model also reproduces the observed variance for NO2 well.
 
 ## Part E: Ability to reproduce auto-correlation
-```{r}
 
+Univariate: CO
+```{r}
+par(mfrow=c(1,2))
+acf(CO.ts)
+acf(COsim)
+par(mfrow=c(1,1))
+par(mfrow=c(1,2))
+pacf(CO.ts)
+pacf(COsim)
+par(mfrow=c(1,1))
+```
+
+Univariate: NO2
+```{r}
+par(mfrow=c(1,2))
+acf(NO2.ts)
+acf(NO2sim)
+par(mfrow=c(1,1))
+par(mfrow=c(1,2))
+pacf(NO2.ts)
+pacf(NO2sim)
+par(mfrow=c(1,1))
+```
+
+Multivariate: CO
+```{r}
+par(mfrow=c(1,2))
+acf(CO.ts)
+acf(MCOsim)
+par(mfrow=c(1,1))
+
+par(mfrow=c(1,2))
+pacf(CO.ts)
+pacf(MCOsim)
+par(mfrow=c(1,1))
+```
+The PACFs are pretty different...ask in office hours
+
+
+Multivariate: NO2
+```{r}
+par(mfrow=c(1,2))
+acf(NO2.ts)
+acf(MNO2sim)
+par(mfrow=c(1,1))
+par(mfrow=c(1,2))
+pacf(NO2.ts)
+pacf(MNO2sim)
+par(mfrow=c(1,1))
 ```
 
 ## Part F: Ability to reproduce observed cross-correlation
 ```{r}
-
+cor(dailyAQ$CO.GT.,dailyAQ$NO2.GT.) #observed
+cor(COsim,NO2sim) #simulated from univariate
+cor(MCOsim,MNO2sim) #simulated from multivariate
 ```
