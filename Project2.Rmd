@@ -182,22 +182,23 @@ The adjusted R^2 for the model N02.trend.seasonal is 0.3525
 par(mfrow=c(2,2))
 plot(CO.trend.seasonal, labels.id = NULL)
 par(mfrow=c(1,1))
-# Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance. 
-# Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. 
-# Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. 
-# Residuals versus leverage: No clear influential points with regards to Cook's distance. 
-# The spread of points above and below the mean line in the residuals versus fitted plot and scale-location plots have improved from the CO.trend model. 
 ```
+Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance. 
+Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. 
+Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. 
+Residuals versus leverage: No clear influential points with regards to Cook's distance. 
+The spread of points above and below the mean line in the residuals versus fitted plot and scale-location plots have improved from the CO.trend model. 
+
 # Model diagnostics for NO2.trend.seasonal
 ```{r}
 par(mfrow=c(2,2))
 plot(NO2.trend.seasonal, labels.id = NULL)
 par(mfrow=c(1,1))
-# Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance.
-# Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. The Q-Q plot could be improved a bit. 
-# Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
-# Residuals versus leverage: No clear influential points with regards to Cook's distance. 
 ```
+Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance.
+Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. The Q-Q plot could be improved a bit. 
+Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
+Residuals versus leverage: No clear influential points with regards to Cook's distance. 
 
 ## Part C: Auto-Regressive and Moving Average
 #Get the residuals from the CO.trend.seasonal model above and store in e.ts:
