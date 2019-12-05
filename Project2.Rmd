@@ -57,7 +57,6 @@ dailyAQ <- aggregate(AQdata, by=list(as.Date(airquality[,1],"%m/%d/%Y")), FUN=ma
 dailyAQ <- dailyAQ[1:(dim(dailyAQ)[1]-7),]
 ```
 
-
 ### Part 1: Building Univariate Time Series Models
 ```{r}
 AQ.CO <- dailyAQ$CO.GT.
@@ -94,7 +93,7 @@ sorted.Ts <- 1/pg.NO2$freq[sorted.spec$ix]
 
 # look at first 20
 sorted.omegas[1:20]
-sorted.Ts[1:192]
+sorted.Ts[1:20]
 # evens around 7
 period<-7 
 ```
@@ -255,7 +254,8 @@ pacf(diff(e.ts.NO2),main="Diff PACF of Residuals\nfrom NO2.trend.seasonal")
 par(mfrow=c(1,1))
 ```
 Both plots show sinusoidal decay, which points to using an ARMA model. 
-Yes, we should consider a first order difference of our residuals for NO2 because the ACF of the original has positive autocorrelations out to a high number of lags. By taking the first order difference of the residuals, we reduce this number of lags. Thus, the value of d is 1, to represent first order differentation.
+
+No, we do not need to consider a first order difference the residuals of the NO2.trend.seasonal model because the ACF shows sinusoidal decay that does not cut off, and the differentiated ACF does not improve this. Thus, the value of d is 0.
 
 # Modeling e.ts.CO 
 
@@ -335,78 +335,81 @@ We will move forward using AR(3) to model the residuals of our CO.trend.seasonal
 
 # Modeling e.ts.NO2 
 
-Now we will try out some models for e.ts.CO using p=2 and q=3. 
+Now we will try out some models for e.ts.CO using various p and q values. 
 
 ar(1) p=1
 ```{r}
-NO2.ar1 <- arima(e.ts.NO2, order=c(1,1,0), include.mean=FALSE)
+e.ts.NO2
+
+NO2.ar1 <- arima(e.ts.NO2, order=c(1,0,0), include.mean=FALSE)
 summary(NO2.ar1)
 ```
-AIC = 3794.26
+AIC = 3766.75
 
 ar(2) p=2
 ```{r}
-NO2.ar2 <- arima(e.ts.NO2, order=c(2,1,0), include.mean=FALSE)
+NO2.ar2 <- arima(e.ts.NO2, order=c(2,0,0), include.mean=FALSE)
 summary(NO2.ar2)
 ```
-AIC = 3764.89
+AIC = 3757.73
 
 ar(3) p=3
 ```{r}
-NO2.ar3 <- arima(e.ts.NO2, order=c(3,1,0), include.mean=FALSE)
+NO2.ar3 <- arima(e.ts.NO2, order=c(3,0,0), include.mean=FALSE)
 summary(NO2.ar3)
 ```
-AIC = 3764.98
+AIC = 3746.67
 
 ma(1) p=0, q=1
 ```{r}
-NO2.ma1 <- arima(e.ts.NO2, order=c(0,1,1), include.mean=FALSE)
+NO2.ma1 <- arima(e.ts.NO2, order=c(0,0,1), include.mean=FALSE)
 summary(NO2.ma1)
 ```
-AIC = 3759.62
+AIC = 3826.81
 
 ma(2) p=0, q=2
 ```{r}
-NO2.ma2 <- arima(e.ts.NO2, order=c(0,1,2), include.mean=FALSE)
+NO2.ma2 <- arima(e.ts.NO2, order=c(0,0,2), include.mean=FALSE)
 summary(NO2.ma2)
 ```
-AIC = 3748.95
+AIC = 3805.23
 
 ma(3) p=0, q=3
 ```{r}
-NO2.ma3 <- arima(e.ts.NO2, order=c(0,1,3), include.mean=FALSE)
+NO2.ma3 <- arima(e.ts.NO2, order=c(0,0,3), include.mean=FALSE)
 summary(NO2.ma3)
 ```
-AIC = 3750.79
+AIC = 3775.63.79
 
 arma(1,2) p=1, q=2
 ```{r}
-NO2.arma12 <- arima(e.ts.NO2, order=c(1,1,2), include.mean=FALSE)
+NO2.arma12 <- arima(e.ts.NO2, order=c(1,0,2), include.mean=FALSE)
 summary(NO2.arma12)
 ```
-AIC = 3746.02
+
+AIC = 3747.93
 
 arma(1,3) p=1, q=3
 ```{r}
-NO2.arma13 <- arima(e.ts.NO2, order=c(1,1,3), include.mean=FALSE)
+NO2.arma13 <- arima(e.ts.NO2, order=c(1,0,3), include.mean=FALSE)
 summary(NO2.arma13)
 ```
-AIC = 3744.05
+AIC = 3749.47
 
 arma(2,3) p=2, q=3
 ```{r}
-NO2.arma23 <- arima(e.ts.NO2, order=c(2,1,3), include.mean=FALSE)
+NO2.arma23 <- arima(e.ts.NO2, order=c(2,0,3), include.mean=FALSE)
 summary(NO2.arma23)
 ```
-AIC = 3744.7
+AIC = 3751.75
 
-Based on the above AIC values, we would choose model ARMA(1,3) because it has the lowest AIC value. 
+Based on the above AIC values, we would choose model AR(3) because it has the lowest AIC value. 
 As a final step, we will use the auto.arima function on e.ts.NO2. 
 ```{r}
 NO2.auto <- auto.arima(e.ts.NO2,approximation=FALSE)
 summary(NO2.auto)
 ```
-AIC = 3746.02
+AIC = 3746.13
 Because it has a lower AIC (3744.05) than the model from the auto.arima function (3746.02), we will move forward using ARMA(1,3) with a first order difference of the residuals for our NO2.trend.seasonal model.
 
 # Part D: Assessment of Models -- update these
@@ -465,12 +468,12 @@ tsdiag(NO2.arma23, lag = 30)
 The standardized residuals graph shows that there is noise in the ARMA(2,3) model of the residuals.
 The ACF of residuals shows no significant lags in the ARMA(2,3) model.
 Finally, the Ljung-Box statistic shows that the p-values do not touch 0, and is at adequate at all the lags.
-All of these attributes from the diagnotics plots indicate a valid model. Now, let's look at the model with the best AIC, ARMA(1,3).
+All of these attributes from the diagnotics plots indicate a valid model. Now, let's look at the model with the best AIC, AR(3).
 ```{r}
-tsdiag(NO2.arma13, lag = 30)
+tsdiag(NO2.ar3, lag = 30)
 ```
-The standardized residuals graph shows that there is noise in the ARMA(1,3) model of the residuals.
-The ACF of residuals shows no significant lags in the ARMA(1,3) model.
+The standardized residuals graph shows that there is noise in the AR(3) model of the residuals.
+The ACF of residuals shows no significant lags in the AR(3) model.
 Finally, the Ljung-Box statistic shows that the p-values do not touch 0, and is at adequate at all the lags.
 All of these attributes from the diagnotics plots indicate a valid model. Because this model also had the lowest AIC, we will use it moving forward.
 
@@ -545,44 +548,36 @@ next.year <- data.frame(time = next.year.time)
 COmean <- predict(CO.trend.seasonal, newdata = next.year)
 NO2mean <- predict(NO2.trend.seasonal, newdata = next.year)
 
-set.seed(8)
+set.seed(10)
 T.simUCO = arima.sim(CO.ar3$model,365)
-T.simUNO2 = arima.sim(NO2.arma13$model,365)
+set.seed(5)
+T.simUNO2 = arima.sim(n=365, list(ar=c(NO2.ar3$coef[1],NO2.ar3$coef[2],NO2.ar3$coef[3])),sd=sqrt(NO2.ar3$sigma2))
+
 ```
 
 ```{r}
 T.simM = VARMAsim(365,phi=varma.model$Phi,theta=varma.model$Theta,sigma=varma.model$Sigma)
 ```
 ## Part A: Ability to reproduce appearance
-Univariate: CO 
+Multivariate and Univariate: CO 
 ```{r}
 {plot(COmean + T.simUCO)
-lines(dailyAQ$CO.GT.[1:365] + allResiduals$CO[1:365],col="blue")}
+lines(dailyAQ$CO.GT.[1:365] + allResiduals$CO[1:365],col="blue")
+lines(COmean + T.simM$series[,1], col = "red")}
 ```
 Above is a plot of ? which shows ___
 
-Univariate: NO2
+Multivariate and Univariate: NO2
 ``` {r}
 {plot(NO2mean + T.simUNO2)
-lines(dailyAQ$NO2.GT.[1:365] + allResiduals$NO2[1:365],col="green")}
-plot(dailyAQ$NO2.GT.[1:365] + allResiduals$NO2[1:365],col="green")
-plot(NO2mean + T.simUNO2)
-plot(NO2mean)
+lines(dailyAQ$NO2.GT.[1:365] + allResiduals$NO2[1:365],col="blue")
+lines(NO2mean + T.simM$series[,2], col = "red")}
+#plot(dailyAQ$NO2.GT.[1:365] + allResiduals$NO2[1:365],col="green")
+#plot(NO2mean + T.simUNO2)
+#plot(NO2mean)
 plot(T.simUNO2)
 ```
 
-Multivariate: CO
-```{r}
-{plot(COmean + T.simM$series[,1], type='l')
-lines(dailyAQ$CO.GT.[1:365] + allResiduals$CO[1:365],col="blue")}
-```
-Above is a plot of ? which shows ___
-
-Multivariate: NO2
-```{r}
-{plot(NO2mean + T.simM$series[,2], type='l')
-lines(dailyAQ$NO2.GT.[1:365] + allResiduals$NO2[1:365],col="blue")}
-```
 
 ## Part B: Ability to reproduce observed trends
 
@@ -741,4 +736,10 @@ par(mfrow=c(1,1))
 cor(dailyAQ$CO.GT.,dailyAQ$NO2.GT.) #observed
 cor(COsim,NO2sim) #simulated from univariate
 cor(MCOsim,MNO2sim) #simulated from multivariate
+```
+
+### Bonus
+
+```{r}
+CO.forecast <- forecast(e.Tmin.lm, h=6)
 ```
