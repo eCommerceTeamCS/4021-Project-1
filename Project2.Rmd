@@ -12,10 +12,10 @@ require("knitr")
 #datadir <- "/Users/shaynecassidy/Desktop/4021/Data/AirQualityUCI"
 #sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
 
-# sourcedir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
-# datadir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/AirQualityUCI"
-sourcedir <- "C:/Users/student/SYS4021/RCode"
-datadir <- "C:/Users/student/SYS4021/Data/AirQualityUCI/"
+sourcedir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
+datadir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/AirQualityUCI"
+#sourcedir <- "C:/Users/student/SYS4021/RCode"
+#datadir <- "C:/Users/student/SYS4021/Data/AirQualityUCI/"
 opts_knit$set(root.dir = sourcedir)
 library(forecast)
 library(mtsdi)
@@ -59,7 +59,7 @@ dailyAQ <- dailyAQ[1:(dim(dailyAQ)[1]-7),]
 
 ### Part 1: Building Univariate Time Series Models
 ```{r}
-AQ.CO <- dailyAQ$CO.GT.
+MAQ.CO <- dailyAQ$CO.GT.
 #AQ.CO <- AQdata$CO.GT.
 AQ.NO2 <- dailyAQ$NO2.GT.
 #AQ.NO2<-AQdata$NO2.GT.
@@ -132,18 +132,18 @@ From the naked eye, the slope seems more drastic than with the trend line from C
 This supports the results of our statistical test. 
 The adjusted R^2 for the model NO2.trend is 0.3031.
 
-# Model diagnostics for CO.trend --> talk about why we don't do a log transform here!!
+# Model diagnostics for CO.trend
 ```{r}
 par(mfrow=c(2,2))
 plot(CO.trend, labels.id = NULL)
 par(mfrow=c(1,1))
 ```
-Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
+Residuals versus fitted plot: Does not violate assumptions. The mean is around zero and there seems to be constant variance. There are a few outliers.
 Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. The Q-Q plot could be improved.
 Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
 Residuals versus leverage: No clear influential points with regards to Cook's distance.
 
-Based on these diagnostics plots, it does not appear that we need to perform any type of transformation (i.e. Log transform).
+The diagnostic plots do not indicate any strong violations of assumptions, so it does not appear that we need to perform any type of transformation (i.e. Log transform). 
 
 # Model diagnostics for NO2.trend
 ```{r}
@@ -153,7 +153,7 @@ par(mfrow=c(1,1))
 ```
 Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance.
 Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. As seen by the naked eye, the Q-Q plot for N02.trend is a little better than that of CO.trend.
-Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
+Scale-location: Does not violate assumptions. The mean is around 0.75 and there seems to be a constant variance around this mean. While we would prefer for the mean to be closer to zero, paired with the other diagnostic plots we do not feel like this causes a violation of assumptions. There are a few outliers.
 Residuals versus leverage: No clear influential points with regards to Cook's distance.
 
 Based on these diagnostics plots, it does not appear that we need to perform any type of transformation (i.e. Log transform).
@@ -167,7 +167,7 @@ summary(CO.trend.seasonal)
 The p-value for this model is 5.027e-13.
 The adjusted R^2 for the model CO.trend.seasonal is 0.1399. 
 
-# add seasonality component to NO2.trend
+# Add seasonality component to NO2.trend
 Because the seasonality component was significant, we added a seasonality component to N02.trend. We decided to use a period of 7 because the peak frequency of the periodogram is about 0.14, and 1/0.14 = 7. This implies a weekly period. 
 ```{r}
 NO2.trend.seasonal <- lm(NO2.ts[time] ~ time + sin(2*pi*time/7) + cos(2*pi*time/7))
@@ -182,7 +182,7 @@ par(mfrow=c(2,2))
 plot(CO.trend.seasonal, labels.id = NULL)
 par(mfrow=c(1,1))
 ```
-Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance. 
+Residuals versus fitted plot: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
 Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. 
 Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. 
 Residuals versus leverage: No clear influential points with regards to Cook's distance. 
@@ -198,6 +198,8 @@ Residuals versus fitted plot: Does not violate assumptions. The mean is about ze
 Q-Q plot: The fit to the line is fairly solid, thus no drastic violation of assumptions. The Q-Q plot could be improved a bit. 
 Scale-location: Does not violate assumptions. The mean is about zero and there seems to be constant variance. There are a few outliers.
 Residuals versus leverage: No clear influential points with regards to Cook's distance. 
+
+Both the CO.trend.seasonal model and the NO2.trend.seasonal model demonstrate good diagnostics which do not violate assumptions, so we will not do a transformation of either model. 
 
 ## Part C: Auto-Regressive and Moving Average
 #Get the residuals from the CO.trend.seasonal model above and store in e.ts:
@@ -242,7 +244,7 @@ pacf(e.ts.NO2,main="PACF of Residuals\nfrom NO2.trend.seasonal")
 par(mfrow=c(1,1))
 ```
 The ACF plot for the residuals of the NO2.trend.seasonal shows sinusoidal decay. However, it cuts off at a very high lag, thus we are going to test various moving average components. 
-The PACF plot for the residuals of the NO2.trend.seasonal shows sinusoidal decay. However, it cuts off at a very high lag, thus we are going to test various autoregressive components. 
+The PACF plot for the residuals of the NO2.trend.seasonal shows sinusoidal decay. However, it also cuts off at a very high lag, thus we are going to test various autoregressive components. 
 Because the ACF and PACF both show sinusoidal decay, we will also test some ARMA models with both autoregressive and moving average components.
 Then we will calculate AIC values to assess several model choices. 
 
@@ -324,7 +326,7 @@ summary(CO.arma23)
 ```
 AIC = 1419.15
 
-Based on the above AIC values, we would choose model AR(3) because it has the lowest value. 
+Based on the above AIC values, we would choose model AR(3) because it has the lowest AIC value. 
 As a final step, we will use the auto.arima function on e.ts.CO. 
 ```{r}
 CO.auto <- auto.arima(e.ts.CO,approximation=FALSE)
@@ -379,14 +381,13 @@ ma(3) p=0, q=3
 NO2.ma3 <- arima(e.ts.NO2, order=c(0,0,3), include.mean=FALSE)
 summary(NO2.ma3)
 ```
-AIC = 3775.63.79
+AIC = 3775.63
 
 arma(1,2) p=1, q=2
 ```{r}
 NO2.arma12 <- arima(e.ts.NO2, order=c(1,0,2), include.mean=FALSE)
 summary(NO2.arma12)
 ```
-
 AIC = 3747.93
 
 arma(1,3) p=1, q=3
@@ -478,15 +479,15 @@ Finally, the Ljung-Box statistic shows that the p-values do not touch 0, and is 
 All of these attributes from the diagnotics plots indicate a valid model. Because this model also had the lowest AIC, we will use it moving forward.
 
 # Part E: Diagnostics
-Regarding the diagnostics of the models we have chosen, there does not appear to be any concern that would warrant a transformation, such as a log transform. 
+Regarding the diagnostics of the models we have chosen, there does not appear to be any concern that would warrant a transformation, such as a log transform. The diagnostics also do not demonstrate that our models violate assumptions, so we can conclude that they are valid models to use. 
 
 ### Part 2: Building Multivariate Time Series Models
 
 ## Part A: Seasonality
-Same as part 1a
+We used the same models as we used in Part 1 because we found that these were valid models that did not violate assumptions. The models in Part 1 demonstrated seasonality, which we were able to observe from the periodograms that the models produced. These periodograms showed peaks at a frequency around 0.14. This would make the period 1/0.14, or about 7. This makes intuitive sense because this would be a weekly period. Thus, we added a seasonality component to the models to account for the seasonality of the models. So, since we will be using the same models from part 1, we do not need to execute this process again. 
 
 ## Part B: Trends
-Same as part 1b
+Again, since we are using the same models as we used in Part 1, we can conclude that the data for both CO and NO2 show trends, so we will need to account for trend when building our model. In part 1 we demonstrated this by building models to model the trend component. The models showed significant p-values indicating a trend in the data. So, our models accounted for trend. Since we are using the same models, this analysis still applies here for the multivariate time series model. 
 
 ## Part C: Auto-Regressive and Moving Average
 ```{r}
@@ -506,6 +507,8 @@ for(p in 1:3){
   }
 }
 ```
+Because our univariate models both had auto-regressive and moving average components, we can create a varma model that will evaluate different p and q values, which we can interpret to determine which model is best. 
+
 ## Part D: Assessment of Models
 
 We will analyze the AICmatrix to find which model has the lowest AIC. 
@@ -558,6 +561,7 @@ T.simUNO2 = arima.sim(n=365, list(ar=c(NO2.ar3$coef[1],NO2.ar3$coef[2],NO2.ar3$c
 ```{r}
 T.simM = VARMAsim(365,phi=varma.model$Phi,theta=varma.model$Theta,sigma=varma.model$Sigma)
 ```
+
 ## Part A: Ability to reproduce appearance
 Multivariate and Univariate: CO 
 ```{r}
@@ -565,7 +569,7 @@ Multivariate and Univariate: CO
 lines(dailyAQ$CO.GT.[1:365] + allResiduals$CO[1:365],col="blue")
 lines(COmean + T.simM$series[,1], col = "red")}
 ```
-Above is a plot of ? which shows ___
+Above is a plot of the original CO observations, our univariate simulation of CO, and our multivariate simulation of CO. The plots seem to demonstrate similar behavior, indicating that we were able to reproduce appearance of time series. The one main difference in the graphs is that the magnitudes of the simulated models are slightly greater than the magnitudes of the original observations. 
 
 Multivariate and Univariate: NO2
 ``` {r}
@@ -577,7 +581,7 @@ lines(NO2mean + T.simM$series[,2], col = "red")}
 #plot(NO2mean)
 plot(T.simUNO2)
 ```
-
+Above is a plot of the original NO2 observations, our univariate simulation of NO2, and our multivariate simulation of NO2. The plots seem to demonstrate similar behavior, however, some areas of the simulated points have slightly different appearance to the original time series (dips in the graph don't completely line up). However, for the most part they do look quite similar, indicating that our simulated models did appropriately reproduce the appearance of time series.
 
 ## Part B: Ability to reproduce observed trends
 
@@ -621,22 +625,40 @@ The coefficient estimates for time and the seasonality components are fairly sim
 
 Univariate: CO
 ```{r}
+par(mfrow=c(2,1))
+pg.CO <- spec.pgram(CO.ts,spans=9,demean=T,log='no')
 pg.COsim <- spec.pgram(COsim,spans=9,demean=T,log='no')
+par(mfrow=c(1,1))
+
 ```
+The periodograms show spikes at the same locations and follow the same general trend, indicating that our univariate model was able to reproduce seasonality of the original time series.
+
 Univariate: NO2
 ```{r}
+par(mfrow=c(2,1))
+pg.NO2 <- spec.pgram(NO2.ts,spans=9,demean=T,log='no')
 pg.NO2sim <- spec.pgram(NO2sim,spans=9,demean=T,log='no')
+par(mfrow=c(1,1))
 ```
-this is weird, ask about in office hours
+Again, the periodogram of our simulated model has spikes at the same locations as the original time series periodogram, indicating that the univariate model for NO2 was able to reproduce seasonality of the original time series. 
 
 Multivariate: CO
 ```{r}
+par(mfrow=c(2,1))
+pg.CO <- spec.pgram(CO.ts,spans=9,demean=T,log='no')
 pg.MCOsim <- spec.pgram(MCOsim,spans=9,demean=T,log='no')
+par(mfrow=c(1,1))
 ```
-Multivariate: CO
+The periodograms look similar and show peaks at the same locations indicating that the simulated multivariate CO model effectively reproduced seasonality. 
+
+Multivariate: NO2
 ```{r}
+par(mfrow=c(2,1))
+pg.NO2 <- spec.pgram(NO2.ts,spans=9,demean=T,log='no')
 pg.MNO2sim <- spec.pgram(MNO2sim,spans=9,demean=T,log='no')
+par(mfrow=c(1,1))
 ```
+The periodograms look similar and show peaks at the same locations indicating that the simulated multivariate NO2 model effectively reproduced seasonality. 
 
 All of the above simulated periodograms for univariate and multivariate models all show a peak frequency at around 0.14, similar to the observed periodograms. This means we were able to accurately reproduce seasonality of each time series.
 
@@ -658,7 +680,7 @@ mean(NO2sim)
 var(dailyAQ$NO2.GT.)
 var(NO2sim)
 ```
-The means are very close to each other (164.5335 vs. 162.2001), which indicates our model reproduces the observed mean well. However, the variances are rather different (2657.72 vs 880.8054). ??????????
+The means are very close to each other (164.5335 vs. 161.6154), which indicates our model reproduces the observed mean well. The variances are also very close (2657.72 vs 2644.952) indicating that our model also reproduces observed variance well. 
 
 Multivariate: CO
 ```{r}
@@ -716,7 +738,6 @@ pacf(CO.ts)
 pacf(MCOsim)
 par(mfrow=c(1,1))
 ```
-The PACFs are pretty different...ask in office hours
 
 
 Multivariate: NO2
@@ -730,6 +751,7 @@ pacf(NO2.ts)
 pacf(MNO2sim)
 par(mfrow=c(1,1))
 ```
+Despite small differences, the ACF and PACF of each model follows similar trends to those of the original observations. Thus, the models appropriately reproduced the auto-correlation of each time series. 
 
 ## Part F: Ability to reproduce observed cross-correlation
 ```{r}
@@ -737,6 +759,8 @@ cor(dailyAQ$CO.GT.,dailyAQ$NO2.GT.) #observed
 cor(COsim,NO2sim) #simulated from univariate
 cor(MCOsim,MNO2sim) #simulated from multivariate
 ```
+The correlation between CO and NO2 in the original data is 0.608. However, the correlation between CO and NO2 in our simulated univariate model is 0.382. So, we would have liked for our univariate models to reproduce observed cross-correlation more accurately. On the other hand, the multivariate simulated model produced a correlation value of 0.718, indicating that the CO and NO2 variables were more correlated than in the original data. However, this difference is much less than the univariate simulation, so we can conclude that the multivariate models were able to more accurately reproduce observed cross-correlations across time series. 
+
 
 ### Bonus
 
