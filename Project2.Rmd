@@ -244,7 +244,7 @@ pacf(e.ts.NO2,main="PACF of Residuals\nfrom NO2.trend.seasonal")
 par(mfrow=c(1,1))
 ```
 The ACF plot for the residuals of the NO2.trend.seasonal shows sinusoidal decay. However, it cuts off at a very high lag, thus we are going to test various moving average components. 
-The PACF plot for the residuals of the NO2.trend.seasonal shows sinusoidal decay. However, it also cuts off at a very high lag, thus we are going to test various autoregressive components. 
+The PACF plot for the residuals of the NO2.trend.seasonal shows sinusoidal decay. However, it's cutoff seems to be around 3, so we will test with autoregressive components up to 3. 
 Because the ACF and PACF both show sinusoidal decay, we will also test some ARMA models with both autoregressive and moving average components.
 Then we will calculate AIC values to assess several model choices. 
 
@@ -341,7 +341,6 @@ Now we will try out some models for e.ts.CO using various p and q values.
 
 ar(1) p=1
 ```{r}
-e.ts.NO2
 
 NO2.ar1 <- arima(e.ts.NO2, order=c(1,0,0), include.mean=FALSE)
 summary(NO2.ar1)
@@ -507,6 +506,7 @@ for(p in 1:3){
 }
 ```
 Because our univariate models both had auto-regressive and moving average components, we can create a varma model that will evaluate different p and q values, which we can interpret to determine which model is best. 
+Note: we have hidden the code for the creationi of the varma  model and AIC matrix due to its extensive output. (using include=FALSE)
 
 ## Part D: Assessment of Models
 
@@ -516,10 +516,13 @@ AICmatrix
 ```
 According to the AICmatrix, the model with p=2 and q=2 has the lowest AIC, this we should use these values to build our model. 
 The AIC for p=2 and q=2 is 7.16333. The next best model is p=3 and q=3, with an AIC of 7.1883 . 
-We will build these 2 models and compare them using diagnostics.  
+We will build these 2 models and compare them using diagnostics.
+*Note* we have omitted the code for the creation of the varma models due to the excess output. (using include=FALSE)
+
 ```{r setup2, include = FALSE}
 varma.model2 <- VARMACpp(allResiduals, p=3, q=3, include.mean=F)
-varma.model2
+```
+```{r}
 MTSdiag(varma.model2)
 ```
 The CCF plots shows the correlations are all within the dashed line, meaning that the correlations are not statistically different from 0.
@@ -527,9 +530,10 @@ The significance plot of CCM shows a few lags that are below the dashed line. Wh
 The plot of p-values for Ljung-Box statistics shows that the model is adequate until around lag 12.
 The residual plot for CO and NO2 show noise, *yay!* 
 
-```{r}
+```{r setup3, include=FALSE}
 varma.model <- VARMACpp(allResiduals, p=2, q=2, include.mean=F)
-varma.model
+```
+```{r}
 MTSdiag(varma.model)
 ```
 The CCF plots shows the correlations are all within the dashed line, meaning that the correlations are not statistically different from 0.
@@ -537,7 +541,7 @@ The significance plot of CCM shows a few lags that are below the dashed line. Wh
 The plot of p-values for Ljung-Box statistics shows that the model is adequate until around lag 11.
 The residual plot for CO and NO2 show noise, *yay again!*
 
-After investigating the AIC values and the diagnostic plots of the two comparable VARMA models, we have decided to use VARMA(2,2) due to its lowest AIC value and acceptable diagnostic plots. 
+After investigating the AIC values and the diagnostic plots of the two comparable VARMA models, we have decided to use *VARMA(2,2)* due to its lowest AIC value and acceptable diagnostic plots. 
 
 ## Part E: Diagnostics
 While we considered the diagnostics to be acceptable, they could be better. For the p-values for Ljung-Box statistic plot, it would be better if there were more adequate lags (i.e. p-values do not become significant until future lags). In the significance plot of CCM, there were a few points below the dashed line. However, these observations do not pose any major concerns for the remainder of our analysis.
