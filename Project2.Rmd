@@ -517,7 +517,7 @@ AICmatrix
 According to the AICmatrix, the model with p=2 and q=2 has the lowest AIC, this we should use these values to build our model. 
 The AIC for p=2 and q=2 is 7.16333. The next best model is p=3 and q=3, with an AIC of 7.1883 . 
 We will build these 2 models and compare them using diagnostics.  
-```{r setup, include = FALSE}
+```{r setup2, include = FALSE}
 varma.model2 <- VARMACpp(allResiduals, p=3, q=3, include.mean=F)
 varma.model2
 MTSdiag(varma.model2)
