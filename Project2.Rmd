@@ -775,48 +775,62 @@ next.7day.time <- c((length(dailyAQ)-7):(length(dailyAQ)))
 
 # The test data frame
 ```{r}
-next.7day.CO <- data.frame(time.temp = 366:384, CO = CO.ts[366:384])
-next.7day.NO2 <- data.frame(time.temp = next.7day.time, NO2 = NO2.ts[next.7day.time])
+next.7day.CO <- data.frame(time.temp = 378:384, CO = CO.ts[378:384])
+next.7day.NO2 <- data.frame(time.temp = 378:384, NO2 = NO2.ts[378:384])
 ```
 
 # The actual time series for the test period
 ```{r}
-next.6mo.Tmin.ts <- ts(next.6mo.Tmin$Tmin)
-next.6mo.Tmax.ts <- ts(next.6mo.Tmax$Tmax)
+next.7day.CO.ts <- ts(next.7day.CO$CO)
+next.7day.NO2.ts <- ts(next.7day.NO2$NO2)
 ```
 
 # Prediction for the next 6 months:
 ```{r}
-E_Y.pred.Tmin <- predict(Tmin.lm, newdata=next.6mo.Tmin)
-e_t.pred.Tmin <- forecast(e.Tmin.lm, h=6)
-next.6mo.prediction.Tmin <- E_Y.pred.Tmin + e_t.pred.Tmin$mean
+E_Y.pred.CO <- predict(CO.trend.seasonal, newdata=next.7day.CO)
+e_t.pred.CO <- forecast(CO.ar3, h=7)
+next.7day.prediction.CO <- E_Y.pred.CO[378:384] + e_t.pred.CO$mean
 
-E_Y.pred.Tmax <- predict(Tmax.lm, newdata=next.6mo.Tmax)
-e_t.pred.Tmax <- forecast(e.Tmax.lm, h=6)
-next.6mo.prediction.Tmax <- E_Y.pred.Tmax + e_t.pred.Tmax$mean
+e_t.pred.MCO <- forecast(varma.model$data[,1], h=7)
+next.7day.prediction.MCO <- E_Y.pred.CO[378:384] + e_t.pred.MCO$mean
+
+E_Y.pred.NO2 <- predict(NO2.trend.seasonal, newdata=next.7day.NO2)
+e_t.pred.NO2 <- forecast(NO2.ar3, h=7)
+next.7day.prediction.NO2 <- E_Y.pred.NO2[378:384] + e_t.pred.NO2$mean
+
+e_t.pred.MNO2 <- forecast(varma.model$data[,1], h=7)
+next.7day.prediction.MNO2 <- E_Y.pred.NO2[378:384] + e_t.pred.MNO2$mean
 ```
 
 # MSE:
 ```{r}
-mean((next.6mo.prediction.Tmin-next.6mo.Tmin$Tmin)^2)
-mean((next.6mo.prediction.Tmax-next.6mo.Tmax$Tmax)^2)
+mean((next.7day.prediction.CO-next.7day.CO$CO)^2)
+mean((next.7day.prediction.NO2-next.7day.NO2$NO2)^2)
+mean((next.7day.prediction.MCO-next.7day.CO$CO)^2)
+mean((next.7day.prediction.MNO2-next.7day.NO2$NO2)^2)
 ```
 
 # Plot actual values and predicted values
 ```{r}
 par(mfrow=c(1,2))
-# Tmin forecasts
-plot(ts(next.6mo.Tmin$Tmin),type='o',ylim=c(20,65))
-lines(ts(next.6mo.prediction.Tmin),col='red',type='o')
-lines(1:6, E_Y.pred.Tmin + e_t.pred.Tmin$lower[,2], col = "red", lty = "dashed")
-lines(1:6, E_Y.pred.Tmin + e_t.pred.Tmin$upper[,2], col = "red", lty = "dashed")
-legend(1,60, legend = c("Actual", "Predicted"), lwd = 2, col = c("black", "red"))
+# CO forecasts
+{plot(ts(next.7day.CO$CO),type='o',ylim=c(0,10))
+lines(ts(next.7day.prediction.CO),col='red',type='o')
+lines(1:7, E_Y.pred.CO[378:384] + e_t.pred.CO$lower[,2], col = "red", lty = "dashed")
+lines(1:7, E_Y.pred.CO[378:384] + e_t.pred.CO$upper[,2], col = "red", lty = "dashed")
+lines(ts(next.7day.prediction.MCO),col='green',type='o')
+lines(1:7, E_Y.pred.CO[378:384] + e_t.pred.MCO$lower[,2], col = "green", lty = "dashed")
+lines(1:7, E_Y.pred.CO[378:384] + e_t.pred.MCO$upper[,2], col = "green", lty = "dashed")
+legend(5,9, legend = c("Actual", "Predicted (univariate)", "Predicted(multivariate)"), lwd = 3, col = c("black", "red", "green"))}
 
-#Tmax forecasts
-plot(ts(next.6mo.Tmax$Tmax),type='o',ylim=c(40,85))
-lines(ts(next.6mo.prediction.Tmax),col='red',type='o')
-lines(1:6, E_Y.pred.Tmax + e_t.pred.Tmax$lower[,2], col = "red", lty = "dashed")
-lines(1:6, E_Y.pred.Tmax + e_t.pred.Tmax$upper[,2], col = "red", lty = "dashed")
-legend(1,80, legend = c("Actual", "Predicted"), lwd = 2, col = c("black", "red"))
-par(mfrow=c(1,1))
+#NO2 forecasts
+{plot(ts(next.7day.NO2$NO2),type='o',ylim=c(0,250))
+lines(ts(next.7day.prediction.NO2),col='red',type='o')
+lines(1:7, E_Y.pred.NO2[378:384] + e_t.pred.NO2$lower[,2], col = "red", lty = "dashed")
+lines(1:7, E_Y.pred.NO2[378:384] + e_t.pred.NO2$upper[,2], col = "red", lty = "dashed")
+lines(ts(next.7day.prediction.MNO2),col='green',type='o')
+lines(1:7, E_Y.pred.NO2[378:384] + e_t.pred.MNO2$lower[,2], col = "green", lty = "dashed")
+lines(1:7, E_Y.pred.NO2[378:384] + e_t.pred.MNO2$upper[,2], col = "green", lty = "dashed")
+legend(1,75, legend = c("Actual", "Predicted(univariate)", "Predicted(multivariate)"), lwd = 2, col = c("black", "red", "green"))
+par(mfrow=c(1,1))}
 ```
