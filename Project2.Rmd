@@ -12,10 +12,10 @@ require("knitr")
 #datadir <- "/Users/shaynecassidy/Desktop/4021/Data/AirQualityUCI"
 #sourcedir <-"/Users/shaynecassidy/Desktop/4021/RCode"
 
-sourcedir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
-datadir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/AirQualityUCI"
-#sourcedir <- "C:/Users/student/SYS4021/RCode"
-#datadir <- "C:/Users/student/SYS4021/Data/AirQualityUCI/"
+#sourcedir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/RCode"
+#datadir <- "C:/Users/swnathan/Documents/4y1s/sys4021/InClassR/Data/AirQualityUCI"
+sourcedir <- "C:/Users/student/SYS4021/RCode"
+datadir <- "C:/Users/student/SYS4021/Data/AirQualityUCI/"
 opts_knit$set(root.dir = sourcedir)
 library(forecast)
 library(mtsdi)
@@ -59,7 +59,7 @@ dailyAQ <- dailyAQ[1:(dim(dailyAQ)[1]-7),]
 
 ### Part 1: Building Univariate Time Series Models
 ```{r}
-MAQ.CO <- dailyAQ$CO.GT.
+AQ.CO <- dailyAQ$CO.GT.
 #AQ.CO <- AQdata$CO.GT.
 AQ.NO2 <- dailyAQ$NO2.GT.
 #AQ.NO2<-AQdata$NO2.GT.
@@ -94,7 +94,7 @@ sorted.Ts <- 1/pg.NO2$freq[sorted.spec$ix]
 # look at first 20
 sorted.omegas[1:20]
 sorted.Ts[1:20]
-# evens around 7
+# evens out around 7
 period<-7 
 ```
 
@@ -411,7 +411,7 @@ NO2.auto <- auto.arima(e.ts.NO2,approximation=FALSE)
 summary(NO2.auto)
 ```
 AIC = 3746.13
-Because it has a lower AIC (3744.05) than the model from the auto.arima function (3746.02), we will move forward using ARMA(1,3) with a first order difference of the residuals for our NO2.trend.seasonal model.
+Because of the observations from the PACF and its low AIC, we will move forward using AR(3) for the residuals for our NO2.trend.seasonal model.
 
 # Part D: Assessment of Models -- update these
 We used AIC and diagnostics to assess the models for CO. 
@@ -443,8 +443,7 @@ AIC(NO2.arma13)
 AIC(NO2.arma23)
 AIC(NO2.auto)
 ```
-The lowest AIC is the NO2.arma(13), which is what the auto.arima function produced as well. 
-Therefore the model we would choose is ARMA(1,3). 
+The lowest AIC is the NO2.ar(3), therefore we will use this model. 
 
 Now we will consider diagnostics of the best CO model and second best CO model according to their AIC.
 ```{r}
@@ -487,7 +486,7 @@ Regarding the diagnostics of the models we have chosen, there does not appear to
 We used the same models as we used in Part 1 because we found that these were valid models that did not violate assumptions. The models in Part 1 demonstrated seasonality, which we were able to observe from the periodograms that the models produced. These periodograms showed peaks at a frequency around 0.14. This would make the period 1/0.14, or about 7. This makes intuitive sense because this would be a weekly period. Thus, we added a seasonality component to the models to account for the seasonality of the models. So, since we will be using the same models from part 1, we do not need to execute this process again. 
 
 ## Part B: Trends
-Again, since we are using the same models as we used in Part 1, we can conclude that the data for both CO and NO2 show trends, so we will need to account for trend when building our model. In part 1 we demonstrated this by building models to model the trend component. The models showed significant p-values indicating a trend in the data. So, our models accounted for trend. Since we are using the same models, this analysis still applies here for the multivariate time series model. 
+Again, since we are using the same models as we used in Part 1, we can conclude that the data for both CO and NO2 show trends, so we will need to account for trend when building our model. In part 1 we demonstrated this by building linear models to model the trend component. The models showed significant p-values indicating a trend in the data. So, our models accounted for trend. Since we are using the same models, this analysis still applies here for the multivariate time series model. 
 
 ## Part C: Auto-Regressive and Moving Average
 ```{r}
@@ -576,10 +575,6 @@ Multivariate and Univariate: NO2
 {plot(NO2mean + T.simUNO2)
 lines(dailyAQ$NO2.GT.[1:365] + allResiduals$NO2[1:365],col="blue")
 lines(NO2mean + T.simM$series[,2], col = "red")}
-#plot(dailyAQ$NO2.GT.[1:365] + allResiduals$NO2[1:365],col="green")
-#plot(NO2mean + T.simUNO2)
-#plot(NO2mean)
-plot(T.simUNO2)
 ```
 Above is a plot of the original NO2 observations, our univariate simulation of NO2, and our multivariate simulation of NO2. The plots seem to demonstrate similar behavior, however, some areas of the simulated points have slightly different appearance to the original time series (dips in the graph don't completely line up). However, for the most part they do look quite similar, indicating that our simulated models did appropriately reproduce the appearance of time series.
 
@@ -765,5 +760,63 @@ The correlation between CO and NO2 in the original data is 0.608. However, the c
 ### Bonus
 
 ```{r}
-CO.forecast <- forecast(e.Tmin.lm, h=6)
+CO.forecast <- forecast(CO.ar3, h=7)
+NO2.forecast <- forecast(NO2.ar3, h=7)
+MCO.forecast <- forecast(varma.model$data[,1],h=7)
+MNO2.forecast <- forecast(varma.model$data[,2], h=7)
+```
+# Prediction performance
+# Create test set from temp data set with last 6 months
+
+# The test period in months
+```{r}
+next.7day.time <- c((length(dailyAQ)-7):(length(dailyAQ)))
+```
+
+# The test data frame
+```{r}
+next.7day.CO <- data.frame(time.temp = 366:384, CO = CO.ts[366:384])
+next.7day.NO2 <- data.frame(time.temp = next.7day.time, NO2 = NO2.ts[next.7day.time])
+```
+
+# The actual time series for the test period
+```{r}
+next.6mo.Tmin.ts <- ts(next.6mo.Tmin$Tmin)
+next.6mo.Tmax.ts <- ts(next.6mo.Tmax$Tmax)
+```
+
+# Prediction for the next 6 months:
+```{r}
+E_Y.pred.Tmin <- predict(Tmin.lm, newdata=next.6mo.Tmin)
+e_t.pred.Tmin <- forecast(e.Tmin.lm, h=6)
+next.6mo.prediction.Tmin <- E_Y.pred.Tmin + e_t.pred.Tmin$mean
+
+E_Y.pred.Tmax <- predict(Tmax.lm, newdata=next.6mo.Tmax)
+e_t.pred.Tmax <- forecast(e.Tmax.lm, h=6)
+next.6mo.prediction.Tmax <- E_Y.pred.Tmax + e_t.pred.Tmax$mean
+```
+
+# MSE:
+```{r}
+mean((next.6mo.prediction.Tmin-next.6mo.Tmin$Tmin)^2)
+mean((next.6mo.prediction.Tmax-next.6mo.Tmax$Tmax)^2)
+```
+
+# Plot actual values and predicted values
+```{r}
+par(mfrow=c(1,2))
+# Tmin forecasts
+plot(ts(next.6mo.Tmin$Tmin),type='o',ylim=c(20,65))
+lines(ts(next.6mo.prediction.Tmin),col='red',type='o')
+lines(1:6, E_Y.pred.Tmin + e_t.pred.Tmin$lower[,2], col = "red", lty = "dashed")
+lines(1:6, E_Y.pred.Tmin + e_t.pred.Tmin$upper[,2], col = "red", lty = "dashed")
+legend(1,60, legend = c("Actual", "Predicted"), lwd = 2, col = c("black", "red"))
+
+#Tmax forecasts
+plot(ts(next.6mo.Tmax$Tmax),type='o',ylim=c(40,85))
+lines(ts(next.6mo.prediction.Tmax),col='red',type='o')
+lines(1:6, E_Y.pred.Tmax + e_t.pred.Tmax$lower[,2], col = "red", lty = "dashed")
+lines(1:6, E_Y.pred.Tmax + e_t.pred.Tmax$upper[,2], col = "red", lty = "dashed")
+legend(1,80, legend = c("Actual", "Predicted"), lwd = 2, col = c("black", "red"))
+par(mfrow=c(1,1))
 ```
